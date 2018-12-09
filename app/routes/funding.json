@@ -1,5 +1,5 @@
 {
-  "/funding/request": {
+  "/funding/:account": {
     "POST": {
       "route": "request"
     }
