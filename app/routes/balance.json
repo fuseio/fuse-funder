@@ -1,0 +1,12 @@
+{
+  "/balance/request/:account": {
+    "GET": {
+      "route": "request"
+    }
+  },
+  "/balance/:account": {
+    "GET": {
+      "route": "balance"
+    }
+  }
+}

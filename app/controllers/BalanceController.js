@@ -9,11 +9,21 @@ module.exports = (osseus) => {
         value: osseus.config.ethereum_native_bonus
       })
       const balance = await web3.eth.getBalance(account)
-      console.log(token.methods.balanceOf)
       const fcfBalance = await token.methods.balanceOf(account).call()
       res.send({
         native: web3.utils.fromWei(balance),
         fcf: fcfBalance
+      })
+    },
+    balance: async (req, res) => {
+      const { web3, token } = osseus.lib
+      const { account } = req.params
+
+      const native = web3.utils.fromWei(await web3.eth.getBalance(account))
+      const fcf = web3.utils.fromWei(await token.methods.balanceOf(account).call())
+      res.send({
+        native,
+        fcf
       })
     }
   }
