@@ -12,26 +12,13 @@ module.exports = (osseus) => {
     versionKey: true
   })
 
-  const User = mongo.mongoose.model('User', UserSchema)
+  const User = mongo.model('User', UserSchema)
 
   function user () {}
 
-  user.getByAccount = (account) => {
-    console.log('hi')
-    return new Promise((resolve, reject) => {
-      console.log('hi2')
-      User.find({}, console.log)
-      User.findOne({ account }, (err, doc) => {
-        console.log('DONE')
-        if (err) {
-          return reject(err)
-        }
-        if (!doc) {
-          return reject(new Error(`User not found for address: ${account}`))
-        }
-        resolve(doc)
-      })
-    })
-  }
+  user.fund = (account) => User.update({ account }, { funded: true }, { upsert: true })
+
+  user.getByAccount = (account) => User.findOne({ account })
+
   return user
 }

@@ -11,15 +11,8 @@ module.exports = (osseus) => {
   return {
     request: async (req, res) => {
       const { account } = req.params
-      let user
-      console.log(osseus.db_models)
       if (osseus.config.ethereum_one_time_funding) {
-        try {
-          user = await osseus.db_models.user.getByAccount(account)
-        } catch (e) {
-          console.log(e)
-        }
-        console.log('hi2')
+        const user = await osseus.db_models.user.getByAccount(account)
 
         if (user && user.funded) {
           return res.status(403).send({
@@ -38,10 +31,8 @@ module.exports = (osseus) => {
         gas: osseus.config.ethereum_gas_per_transaction
       })
 
-      if (user) {
-        user.funded = true
-        user.save()
-      }
+      // await osseus.db_models.user.create({ account, funded: true })
+      await osseus.db_models.user.fund(account)
       res.send(await balance(req.params))
     },
     balance: async (req, res) => {
