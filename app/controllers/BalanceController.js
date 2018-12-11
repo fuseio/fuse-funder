@@ -25,28 +25,28 @@ module.exports = (osseus) => {
   return {
     request: async (req, res) => {
       const { account } = req.params
-      if (await osseus.db_models.user.isFunded(account)) {
+      if (await osseus.db_models.funding.isFunded(account)) {
         return res.status(403).send({
           error: `Account  ${account} already received funding.`
         })
       }
-      if (await osseus.db_models.user.fundingsPerDay(new Date()) >= osseus.config.ethereum_fundings_cap_per_day) {
+      if (await osseus.db_models.funding.fundingsPerDay(new Date()) >= osseus.config.ethereum_fundings_cap_per_day) {
         return res.status(403).send({
           error: `Funding of ${account} failed. Reached maximum capacity per day.`
         })
       }
-      await osseus.db_models.user.startFunding(account)
+      await osseus.db_models.funding.startFunding(account)
 
       try {
         await fund(req.params)
       } catch (error) {
-        await osseus.db_models.user.failFunding(account)
+        await osseus.db_models.funding.failFunding(account)
         return res.status(403).send({
           error: `Funding of ${account} failed.`
         })
       }
 
-      await osseus.db_models.user.finishFunding(account)
+      await osseus.db_models.funding.finishFunding(account)
       res.send(await balance(req.params))
     },
     balance: async (req, res) => {
