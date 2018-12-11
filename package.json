@@ -30,6 +30,7 @@
     "@colucom/osseus-mongo": "~0.3.1",
     "@colucom/osseus-router": "~0.4.1",
     "@colucom/osseus-server": "~0.2.1",
+    "moment": "^2.22.2",
     "openzeppelin-solidity": "1.11.0",
     "standard": "^12.0.1",
     "truffle-hdwallet-provider": "0.0.6",

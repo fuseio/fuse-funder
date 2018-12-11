@@ -8,31 +8,45 @@ module.exports = (osseus) => {
       cryptoFiat
     }
   }
+
+  const fund = async ({ account }) => {
+    await osseus.lib.web3.eth.sendTransaction({
+      from: osseus.config.ethereum_admin_account,
+      to: account,
+      value: osseus.config.ethereum_native_bonus
+    })
+
+    await osseus.lib.token.methods.mint(account, osseus.config.ethereum_token_bonus.toString()).send({
+      from: osseus.config.ethereum_admin_account,
+      gas: osseus.config.ethereum_gas_per_transaction
+    })
+  }
+
   return {
     request: async (req, res) => {
       const { account } = req.params
-      if (osseus.config.ethereum_one_time_funding) {
-        const user = await osseus.db_models.user.getByAccount(account)
-
-        if (user && user.funded) {
-          return res.status(403).send({
-            error: `Account  ${account} already received funding`
-          })
-        }
+      if (await osseus.db_models.user.isFunded(account)) {
+        return res.status(403).send({
+          error: `Account  ${account} already received funding.`
+        })
       }
-      await osseus.lib.web3.eth.sendTransaction({
-        from: osseus.config.ethereum_admin_account,
-        to: account,
-        value: osseus.config.ethereum_native_bonus
-      })
+      if (await osseus.db_models.user.fundingsPerDay(new Date()) >= osseus.config.ethereum_fundings_cap_per_day) {
+        return res.status(403).send({
+          error: `Funding of ${account} failed. Reached maximum capacity per day.`
+        })
+      }
+      await osseus.db_models.user.startFunding(account)
 
-      await osseus.lib.token.methods.mint(account, osseus.config.ethereum_token_bonus.toString()).send({
-        from: osseus.config.ethereum_admin_account,
-        gas: osseus.config.ethereum_gas_per_transaction
-      })
+      try {
+        await fund(req.params)
+      } catch (error) {
+        await osseus.db_models.user.failFunding(account)
+        return res.status(403).send({
+          error: `Funding of ${account} failed.`
+        })
+      }
 
-      // await osseus.db_models.user.create({ account, funded: true })
-      await osseus.db_models.user.fund(account)
+      await osseus.db_models.user.finishFunding(account)
       res.send(await balance(req.params))
     },
     balance: async (req, res) => {
