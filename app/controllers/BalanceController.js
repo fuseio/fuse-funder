@@ -28,7 +28,6 @@ module.exports = (osseus) => {
 
   return {
     request: async (req, res) => {
-      // console.log('start:' + await osseus.db_models.funding.fundingsPerDay(new Date()))
       const { account } = req.params
       const oldFunding = await osseus.db_models.funding.startFunding(account)
 
