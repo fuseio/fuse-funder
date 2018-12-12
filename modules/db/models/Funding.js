@@ -22,7 +22,7 @@ module.exports = (osseus) => {
 
   function funding () {}
 
-  funding.startFunding = (account) => Funding.update({ account }, { fundingStatus: 'STARTED' }, { upsert: true })
+  funding.startFunding = (account) => Funding.findOneAndUpdate({ account }, { fundingStatus: 'STARTED', fundingDate: new Date() }, { upsert: true })
 
   funding.finishFunding = (account) => Funding.update({ account }, { fundingStatus: 'SUCCEEDED', fundingDate: new Date() })
 

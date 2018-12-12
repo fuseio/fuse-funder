@@ -65,8 +65,6 @@ module.exports = function (deployer, network, accounts) {
       ).then(function (initializeDone) {
         return tokenProxy.configureMinter(minter, 1e24, {
           from: masterMinter
-        }).then(function (receipt) {
-          console.log('DONE1')
         })
       })
     })
