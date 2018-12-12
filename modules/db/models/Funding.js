@@ -40,6 +40,9 @@ module.exports = (osseus) => {
       fundingDate: {
         $gte: startOfDay,
         $lte: endOfDay
+      },
+      fundingStatus: {
+        $in: ['STARTED', 'SUCCEEDED']
       }
     }).count()
   }

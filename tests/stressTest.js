@@ -1,7 +1,7 @@
 const request = require('request')
 const Web3 = require('web3')
 
-const NUM_OF_TRIES = 100
+const NUM_OF_TRIES = 10
 const REQUEST_URL = 'http://localhost:8080/api/balance/request'
 
 const test = () => {
@@ -16,10 +16,9 @@ const test = () => {
     request(`${REQUEST_URL}/${account.address}`, (error, response, body) => {
       if (error) {
         console.log(error)
+        return
       }
-      if (response && response.statusCode < 300) {
-        console.log(body)
-      }
+      console.log(body)
     })
   }
 }
