@@ -1,6 +1,3 @@
-// function timeout(ms) {
-//     return new Promise(resolve => setTimeout(resolve, ms));
-// }
 
 module.exports = (osseus) => {
   const balance = async ({ account }) => {
@@ -32,14 +29,13 @@ module.exports = (osseus) => {
       const oldFunding = await osseus.db_models.funding.startFunding(account)
 
       if (oldFunding && oldFunding.fundingStatus !== 'FAILED') {
-        await osseus.db_models.funding.failFunding(account)
+        await osseus.db_models.funding.revertFunding(oldFunding)
         return res.status(403).send({
           error: `Account  ${account} already received funding.`
         })
       }
 
       const fundingsCount = await osseus.db_models.funding.fundingsPerDay(new Date())
-      console.log('check: ' + fundingsCount)
 
       if (fundingsCount > osseus.config.ethereum_fundings_cap_per_day) {
         await osseus.db_models.funding.failFunding(account)

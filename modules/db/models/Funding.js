@@ -32,6 +32,9 @@ module.exports = (osseus) => {
 
   funding.getByAccount = (account) => Funding.findOne({ account })
 
+  funding.revertFunding = (oldFunding) => Funding.findOneAndUpdate({ account: oldFunding.account },
+    { fundingStatus: oldFunding.fundingStatus, fundingDate: oldFunding.fundingDate })
+
   funding.fundingsPerDay = (date) => {
     var startOfDay = moment(date).startOf('day')
     var endOfDay = moment(date).endOf('day')
