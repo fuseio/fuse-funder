@@ -1,4 +1,5 @@
 module.exports = {
+  APPLICATION_NAME: 'fuse-funder',
   DEBUG: true,
   OSSEUS_LOGGER_LOG_LEVEL: 'debug',
   OSSEUS_LOGGER_NO_CONSOLE_OVERRIDE: true,
