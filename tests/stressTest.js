@@ -13,7 +13,7 @@ const test = () => {
   }
 
   for (let account of accounts) {
-    request(`${REQUEST_URL}/${account.address}`, (error, response, body) => {
+    request.post(`${REQUEST_URL}/${account.address}`, (error, response, body) => {
       if (error) {
         console.log(error)
         return

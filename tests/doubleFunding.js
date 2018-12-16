@@ -9,7 +9,7 @@ const test = () => {
 
   const account = web3.eth.accounts.create()
   for (let i = 0; i < NUM_OF_TRIES; i++) {
-    request(`${REQUEST_URL}/${account.address}`, (error, response, body) => {
+    request.post(`${REQUEST_URL}/${account.address}`, (error, response, body) => {
       if (error) {
         console.log(error)
         return

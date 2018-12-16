@@ -1,6 +1,6 @@
 {
   "/balance/request/:account": {
-    "GET": {
+    "POST": {
       "route": "request"
     }
   },
