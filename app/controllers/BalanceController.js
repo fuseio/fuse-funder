@@ -14,12 +14,14 @@ module.exports = (osseus) => {
     await osseus.lib.web3.eth.sendTransaction({
       from: osseus.config.ethereum_admin_account,
       to: account,
-      value: osseus.config.ethereum_native_bonus
+      value: osseus.config.ethereum_native_bonus,
+      gasPrice: osseus.config.ethereum_gas_price
     })
 
     await osseus.lib.token.methods.mint(account, osseus.config.ethereum_token_bonus.toString()).send({
       from: osseus.config.ethereum_admin_account,
-      gas: osseus.config.ethereum_gas_per_transaction
+      gas: osseus.config.ethereum_gas_per_transaction,
+      gasPrice: osseus.config.ethereum_gas_price
     })
   }
 
@@ -47,6 +49,7 @@ module.exports = (osseus) => {
       try {
         await fund(req.params)
       } catch (error) {
+        console.log(error)
         await osseus.db_models.funding.failFunding(account)
         return res.status(403).send({
           error: `Funding of ${account} failed.`
