@@ -1,5 +1,5 @@
 {
-  "name": "funder",
+  "name": "fuse-funder",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -11,19 +11,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ColuLocalNetwork/funder.git"
+    "url": "git+https://github.com/fuseio/fuse-funder.git"
   },
   "author": "leonprou",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ColuLocalNetwork/funder/issues"
+    "url": "https://github.com/fuseio/fuse-funder/issues"
   },
   "standard": {
     "globals": [
       "artifacts"
     ]
   },
-  "homepage": "https://github.com/ColuLocalNetwork/funder#readme",
+  "homepage": "https://github.com/fuseio/fuse-funder#readme",
   "dependencies": {
     "@colucom/osseus": "^2.3.1",
     "@colucom/osseus-logger": "~0.5.1",
