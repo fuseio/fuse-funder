@@ -1,28 +1,28 @@
 
 module.exports = (osseus) => {
   const balance = async ({ account }) => {
-    const { web3, token } = osseus.lib
+    const { web3 } = osseus.lib
     const native = web3.utils.fromWei(await web3.eth.getBalance(account))
-    const cryptoFiat = web3.utils.fromWei(await token.methods.balanceOf(account).call())
+    // const cryptoFiat = web3.utils.fromWei(await token.methods.balanceOf(account).call())
     return {
-      native,
-      cryptoFiat
+      native
+      // cryptoFiat
     }
   }
 
   const fund = async ({ account }) => {
-    await osseus.lib.web3.eth.sendTransaction({
+    return osseus.lib.web3.eth.sendTransaction({
       from: osseus.config.ethereum_admin_account,
       to: account,
       value: osseus.config.ethereum_native_bonus,
       gasPrice: osseus.config.ethereum_gas_price
     })
-
-    await osseus.lib.token.methods.mint(account, osseus.config.ethereum_token_bonus.toString()).send({
-      from: osseus.config.ethereum_admin_account,
-      gas: osseus.config.ethereum_gas_per_transaction,
-      gasPrice: osseus.config.ethereum_gas_price
-    })
+    // temporary do not mint token
+    // await osseus.lib.token.methods.mint(account, osseus.config.ethereum_token_bonus.toString()).send({
+    //   from: osseus.config.ethereum_admin_account,
+    //   gas: osseus.config.ethereum_gas_per_transaction,
+    //   gasPrice: osseus.config.ethereum_gas_price
+    // })
   }
 
   return {

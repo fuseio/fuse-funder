@@ -16,7 +16,7 @@ module.exports = {
   OSSEUS_ROUTER_JWT_SECRET: '',
   OSSEUS_MONGO_DEPENDENCIES: ['logger'],
   OSSEUS_MONGO_URI: '',
-  ETHEREUM_WEB3_PROVIDER: 'https://rpc.fuse.io',
+  ETHEREUM_WEB3_PROVIDER: 'https://rpc.fusenet.io',
   ETHEREUM_HD_WALLET_MNEMONIC: '',
   WEB3_TOKEN_ABI_PATH: 'abi/FiatTokenV1.json',
   ETHEREUM_ADMIN_ACCOUNT: '0xa6c61e75e6008eed7f75b73c84755558764081d1',
