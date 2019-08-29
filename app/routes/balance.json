@@ -4,7 +4,7 @@
       "route": "request"
     }
   },
-  "/balance/:account": {
+  "/balance/:account/:tokenAddress": {
     "GET": {
       "route": "balance"
     }
