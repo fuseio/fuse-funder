@@ -1,5 +1,5 @@
 {
-  "/balance/request/:account": {
+  "/balance/request/:account/:tokenAddress": {
     "POST": {
       "route": "request"
     }
