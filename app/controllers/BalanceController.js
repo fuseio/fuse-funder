@@ -1,3 +1,5 @@
+const request = require('request-promise-native')
+const { get } = require('lodash')
 
 module.exports = (osseus) => {
   const balance = async ({ account, tokenAddress }) => {
@@ -19,12 +21,19 @@ module.exports = (osseus) => {
       gasPrice: osseus.config.ethereum_gas_price
     })
 
-    const token = osseus.lib.token.create(tokenAddress)
-    return token.methods.transfer(account, osseus.config.ethereum_token_bonus.toString()).send({
-      from: osseus.config.ethereum_admin_account,
-      gas: osseus.config.ethereum_gas_per_transaction,
-      gasPrice: osseus.config.ethereum_gas_price
-    })
+    const response = await request.get(`${osseus.config.fuse_studio_api_base}/communities?homeTokenAddress=${tokenAddress}`)
+    const community = get(JSON.parse(response), 'data')
+    const joinBonus = get(community, 'plugins.joinBonus')
+
+    if (joinBonus) {
+      const amountInWei = osseus.lib.web3.utils.toWei(joinBonus.amount.toString())
+      const token = osseus.lib.token.create(tokenAddress)
+      return token.methods.transfer(account, amountInWei).send({
+        from: osseus.config.ethereum_admin_account,
+        gas: osseus.config.ethereum_gas_per_transaction,
+        gasPrice: osseus.config.ethereum_gas_price
+      })
+    }
   }
 
   return {

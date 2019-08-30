@@ -31,7 +31,10 @@
     "@colucom/osseus-router": "~0.4.1",
     "@colucom/osseus-server": "~0.2.1",
     "ethereumjs-abi": "^0.6.5",
+    "lodash": "^4.17.15",
     "moment": "^2.22.2",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
     "standard": "^12.0.1",
     "truffle-contract": "^3.0.6",
     "truffle-hdwallet-provider": "0.0.6",
@@ -41,7 +44,6 @@
   "devDependencies": {
     "nodemon": "^1.18.7",
     "openzeppelin-solidity": "1.11.0",
-    "request": "^2.88.0",
     "truffle": "^4.1.14"
   }
 }
