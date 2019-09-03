@@ -1,12 +1,38 @@
 {
-  "/balance/request/:account/:tokenAddress": {
+  "/fund/token": {
     "POST": {
-      "route": "request"
+      "route": "fundToken",
+      "validators": {
+        "body": {
+          "accountAddress": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
+          }
+        }
+      }
     }
   },
-  "/balance/:account/:tokenAddress": {
+  "/fund/native": {
+    "POST": {
+      "route": "fundNative",
+      "validators": {
+        "body": {
+          "accountAddress": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
+          }
+        }
+      }
+    }
+  },
+  "/balance/native/:accountAddress": {
     "GET": {
-      "route": "balance"
+      "route": "balanceNative"
+    }
+  },
+  "/balance/token/:accountAddress/:tokenAddress": {
+    "GET": {
+      "route": "balanceToken"
     }
   }
 }
