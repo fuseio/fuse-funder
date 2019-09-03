@@ -2,6 +2,15 @@ const request = require('request-promise-native')
 const { get } = require('lodash')
 
 module.exports = (osseus) => {
+  /**
+   * @api {get} /balance/native/:accountAddress Fetch native balance
+   * @apiParam {String} accountAddress Account address
+   * @apiName NativeBalance
+   * @apiGroup Funding
+   *
+   *
+   * @apiSuccess {String} balance Native balance
+   */
   const getNativeBalance = async ({ accountAddress }) => {
     const { web3 } = osseus.lib
     const balance = web3.utils.fromWei(await web3.eth.getBalance(accountAddress))
@@ -10,6 +19,15 @@ module.exports = (osseus) => {
     }
   }
 
+  /**
+   * @api {get} /balance/token/:accountAddress/:tokenAddress Fetch token balance
+   * @apiParam {String} accountAddress Account address
+   * @apiName TokenBalance
+   * @apiGroup Funding
+   *
+   *
+   * @apiSuccess {String} balance Token balance
+   */
   const getTokenBalance = async ({ accountAddress, tokenAddress }) => {
     const { web3 } = osseus.lib
     const token = osseus.lib.token.create(tokenAddress)
@@ -34,6 +52,17 @@ module.exports = (osseus) => {
     return owner === accountAddress ? osseus.config.ethereum_native_admin_bonus : osseus.config.ethereum_native_user_bonus
   }
 
+  /**
+ * @api {post} /fund/native Fund account with native
+ * @apiParam {String} accountAddress Account address to fund
+ * @apiParam {String} tokenAddress Token address to determine the bonus amount (optional)
+ * @apiName FundNative
+ * @apiGroup Funding
+ *
+ *
+ * @apiSuccess {String} bonusSent Join bonus amount
+ * @apiSuccess {String} balance Native updated balance
+ */
   const fundNative = async (req, res) => {
     const { accountAddress } = req.body
     const oldFunding = await osseus.db_models.nativeFunding.startFunding({ accountAddress })
@@ -79,6 +108,17 @@ module.exports = (osseus) => {
     await osseus.db_models.nativeFunding.finishFunding({ accountAddress })
   }
 
+  /**
+   * @api {post} /fund/token Fund account with token
+   * @apiParam {String} accountAddress Account address to fund
+   * @apiParam {String} tokenAddress Token address of the funding token
+   * @apiName FundToken
+   * @apiGroup Funding
+   *
+   *
+   * @apiSuccess {String} bonusSent Join bonus amount
+   * @apiSuccess {String} balance Token updated balance
+   */
   const fundToken = async (req, res) => {
     const { accountAddress, tokenAddress } = req.body
     const tokenBonus = await getTokenBonus(req.body)
