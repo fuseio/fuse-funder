@@ -40,7 +40,7 @@ module.exports = (osseus) => {
   const getTokenBonus = async ({ tokenAddress }) => {
     const response = await request.get(`${osseus.config.fuse_studio_api_base}/communities?homeTokenAddress=${tokenAddress}`)
     const community = get(JSON.parse(response), 'data')
-    return get(community, 'plugins.joinBonus.amount')
+    return get(community, 'plugins.joinBonus.joinInfo.amount')
   }
 
   const getNativeBonus = async ({ accountAddress, tokenAddress }) => {
