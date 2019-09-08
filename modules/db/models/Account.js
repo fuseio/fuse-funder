@@ -1,7 +1,8 @@
 
-module.exports = (mongoose) => {
-  mongoose = mongoose || require('mongoose')
-  const Schema = mongoose.Schema
+module.exports = (osseus) => {
+  const { mongo } = osseus
+  const Schema = mongo.mongoose.Schema
+
   const AccountSchema = new Schema({
     address: { type: String, required: [true, "can't be blank"] },
     childIndex: { type: Number, required: [true, "can't be blank"] },
@@ -12,7 +13,7 @@ module.exports = (mongoose) => {
 
   AccountSchema.index({ address: 1 }, { unique: true })
 
-  const Account = mongoose.model('Account', AccountSchema)
+  const Account = mongo.model('Account', AccountSchema)
 
   function account () {}
 

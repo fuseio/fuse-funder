@@ -1,7 +1,7 @@
 const request = require('request-promise-native')
 const { get } = require('lodash')
 
-module.exports = (osseus) => {
+module.exports = (osseus, agenda) => {
   const getNativeBonus = async ({ accountAddress, tokenAddress }) => {
     if (!tokenAddress) {
       return osseus.config.ethereum_native_user_bonus
@@ -12,26 +12,42 @@ module.exports = (osseus) => {
   }
 
   const fundNative = async ({ accountAddress, tokenAddress }) => {
-    const fundingAccount = await osseus.models.account.lockAccount()
-    const web3 = osseus.lib.web3.create(fundingAccount.childIndex)
-
+    const fundingAccount = await osseus.db_models.account.lockAccount()
+    const provider = osseus.lib.provider.create(fundingAccount.childIndex)
+    const web3 = osseus.lib.web3.create(provider)
     const nativeBonus = await getNativeBonus({ accountAddress, tokenAddress })
     try {
-      await web3.eth.sendTransaction({
+      let tx = await web3.eth.sendTransaction({
         from: fundingAccount.address,
         to: accountAddress,
         value: nativeBonus,
         gasPrice: osseus.config.ethereum_gas_price,
         nonce: fundingAccount.nonce
       })
-      osseus.models.account.unlockAccount(fundingAccount.address, fundingAccount.nonce + 1)
+      await osseus.db_models.account.unlockAccount(fundingAccount.address, fundingAccount.nonce + 1)
+      await osseus.db_models.nativeFunding.finishFunding({ accountAddress })
+      return tx
     } catch (error) {
-      osseus.models.account.unlockAccount(fundingAccount.address)
+      await osseus.db_models.account.unlockAccount(fundingAccount.address)
+      await osseus.db_models.nativeFunding.failFunding({ accountAddress })
+      throw error
     }
   }
 
-  return {
-    getNativeBonus,
-    fundNative
-  }
+  agenda.define('fund-native', {concurrency: 5}, async (job, done) => {
+    if (!job || !job.attrs || !job.attrs.data) {
+      return done(new Error(`Job data undefined`))
+    }
+    let { accountAddress, tokenAddress } = job.attrs.data
+    if (!accountAddress) {
+      return done(new Error(`Job data is missing "accountAddress"`))
+    }
+
+    try {
+      let tx = await fundNative({ accountAddress, tokenAddress })
+      done(null, tx)
+    } catch (err) {
+      done(err)
+    }
+  })
 }

@@ -6,7 +6,7 @@ const init = (osseus) => {
       tokenFunding: require('./models/TokenFunding')(this.osseus),
       account: require('./models/Account')(this.osseus)
     }
-    osseus.logger.info(`DB ready`)
+    this.osseus.logger.info(`DB ready`)
     return resolve()
   })
 }
