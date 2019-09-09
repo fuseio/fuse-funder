@@ -25,8 +25,9 @@ module.exports = (osseus) => {
     return Account.findOneAndUpdate({ isLocked: false }, { isLocked: true, lockingTime: new Date() })
   }
 
-  account.unlockAccount = async (address, nonce) =>
-    Account.findOneAndUpdate({ address }, { isLocked: false, lockingTime: null, nonce })
+  account.unlockAccount = (address, nonce) => {
+    return Account.updateOne({ address }, { $set: { isLocked: false, lockingTime: null, nonce }})
+  }
 
   return account
 }

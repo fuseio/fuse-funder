@@ -5,6 +5,6 @@ module.exports = (osseus) => {
 
   return {
     create: create,
-    default: new Web3(osseus.lib.provider)
+    default: new Web3(osseus.lib.provider.default)
   }
 }

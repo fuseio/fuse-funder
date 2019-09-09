@@ -8,31 +8,34 @@ module.exports = (osseus, agenda) => {
     return get(community, 'plugins.joinBonus.joinInfo.amount')
   }
 
+  const getNonce = async (web3, address) => {
+    const transactionCount = await web3.eth.getTransactionCount(address)
+    return transactionCount
+  }
+
   const fundToken = async ({ accountAddress, tokenAddress }) => {
-    const fundingAccount = await osseus.db_models.account.lockAccount()
-    const provider = osseus.lib.provider.create(fundingAccount.childIndex)
-    const web3 = osseus.lib.web3.create(provider)
-    // TODO find the funding account which holds this specific token
-    const tokenBonus = await getTokenBonus({ tokenAddress })
     try {
-      const amountInWei = web3.utils.toWei(tokenBonus.toString())
-      const token = osseus.lib.token.create(tokenAddress, provider)
-      await token.methods.transfer(accountAddress, amountInWei).send({
-        from: fundingAccount.address,
+      const web3 = osseus.lib.web3.default
+      const fundingAccountAddress = osseus.config.ethereum_admin_account
+      const fundingAccountNonce = await getNonce(web3, fundingAccountAddress)
+      const tokenBonus = await getTokenBonus({ tokenAddress })
+      const tokenBonusAmountInWei = web3.utils.toWei(tokenBonus.toString())
+      const token = osseus.lib.token.create(tokenAddress)
+      let tx = await token.methods.transfer(accountAddress, tokenBonusAmountInWei).send({
+        from: fundingAccountAddress,
         gas: osseus.config.ethereum_gas_per_transaction,
         gasPrice: osseus.config.ethereum_gas_price,
-        nonce: fundingAccount.nonce
+        nonce: fundingAccountNonce
       })
-      await osseus.db_models.account.unlockAccount(fundingAccount.address, fundingAccount.nonce + 1)
       await osseus.db_models.tokenFunding.finishFunding({ accountAddress, tokenAddress })
+      return tx
     } catch (error) {
-      await osseus.db_models.account.unlockAccount(fundingAccount.address, fundingAccount.nonce)
       await osseus.db_models.tokenFunding.failFunding({ accountAddress, tokenAddress })
       throw error
     }
   }
 
-  agenda.define('fund-token', {concurrency: osseus.config.funding_concurrency}, async (job, done) => {
+  agenda.define('fund-token', {concurrency: 1}, async (job, done) => {
     if (!job || !job.attrs || !job.attrs.data) {
       return done(new Error(`Job data undefined`))
     }
