@@ -24,9 +24,9 @@ module.exports = (osseus) => {
 
   nativeFunding.startFunding = ({ accountAddress }) => NativeFunding.findOneAndUpdate({ accountAddress }, { fundingStatus: 'STARTED', fundingDate: new Date() }, { upsert: true })
 
-  nativeFunding.finishFunding = ({ accountAddress }) => NativeFunding.update({ accountAddress }, { $set: { fundingStatus: 'SUCCEEDED', fundingDate: new Date() }})
+  nativeFunding.finishFunding = ({ accountAddress }) => NativeFunding.updateOne({ accountAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'SUCCEEDED', fundingDate: new Date() }})
 
-  nativeFunding.failFunding = ({ accountAddress }) => NativeFunding.update({ accountAddress }, { $set: { fundingStatus: 'FAILED' } })
+  nativeFunding.failFunding = ({ accountAddress }) => NativeFunding.updateOne({ accountAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'FAILED' } })
 
   nativeFunding.isFunded = ({ accountAddress }) => NativeFunding.findOne({ accountAddress, fundingStatus: { $exists: true } })
 
