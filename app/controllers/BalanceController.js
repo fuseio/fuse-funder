@@ -43,28 +43,19 @@ module.exports = (osseus) => {
     return get(community, 'plugins.joinBonus.joinInfo.amount')
   }
 
-  const getNativeBonus = async ({ accountAddress, tokenAddress }) => {
-    if (!tokenAddress) {
-      return osseus.config.ethereum_native_user_bonus
-    }
-    const response = await request.get(`${osseus.config.fuse_studio_api_base}/tokens/${tokenAddress}`)
-    const owner = get(JSON.parse(response), 'data.owner')
-    return owner === accountAddress ? osseus.config.ethereum_native_admin_bonus : osseus.config.ethereum_native_user_bonus
-  }
-
   /**
- * @api {post} /fund/native Fund account with native
- * @apiParam {String} accountAddress Account address to fund
- * @apiParam {String} tokenAddress Token address to determine the bonus amount (optional)
- * @apiName FundNative
- * @apiGroup Funding
- *
- *
- * @apiSuccess {String} bonusSent Join bonus amount
- * @apiSuccess {String} balance Native updated balance
- */
+   * @api {post} /fund/native Fund account with native
+   * @apiParam {String} accountAddress Account address to fund
+   * @apiParam {String} tokenAddress Token address to determine the bonus amount (optional)
+   * @apiName FundNative
+   * @apiGroup Funding
+   *
+   *
+   * @apiSuccess {String} bonusSent Join bonus amount
+   * @apiSuccess {String} balance Native updated balance
+   */
   const fundNative = async (req, res) => {
-    const { accountAddress } = req.body
+    const { accountAddress, tokenAddress } = req.body
     const oldFunding = await osseus.db_models.nativeFunding.startFunding({ accountAddress })
 
     if (oldFunding && oldFunding.fundingStatus !== 'FAILED') {
@@ -83,29 +74,14 @@ module.exports = (osseus) => {
       })
     }
 
-    try {
-      const nativeBonus = await getNativeBonus(req.body)
-      await osseus.lib.web3.eth.sendTransaction({
-        from: osseus.config.ethereum_admin_account,
-        to: accountAddress,
-        value: nativeBonus,
-        gasPrice: osseus.config.ethereum_gas_price
-      })
+    let fundingObject = await osseus.db_models.nativeFunding.getStartedByAccount({ accountAddress })
 
-      const { balance } = await getNativeBalance({ accountAddress })
-      res.send({
-        bonusSent: osseus.lib.web3.utils.fromWei(nativeBonus.toString()),
-        balance
-      })
-    } catch (error) {
-      console.log(error)
-      await osseus.db_models.nativeFunding.failFunding({ accountAddress })
-      return res.status(403).send({
-        error: `Funding of ${accountAddress} failed.`
-      })
-    }
+    osseus.lib.agenda.now('fund-native', { accountAddress: accountAddress, tokenAddress:  tokenAddress})
 
-    await osseus.db_models.nativeFunding.finishFunding({ accountAddress })
+    res.send({
+      id: fundingObject.id,
+      status: fundingObject.fundingStatus
+    })
   }
 
   /**
@@ -147,28 +123,14 @@ module.exports = (osseus) => {
       })
     }
 
-    try {
-      const amountInWei = osseus.lib.web3.utils.toWei(tokenBonus.toString())
-      const token = osseus.lib.token.create(tokenAddress)
-      await token.methods.transfer(accountAddress, amountInWei).send({
-        from: osseus.config.ethereum_admin_account,
-        gas: osseus.config.ethereum_gas_per_transaction,
-        gasPrice: osseus.config.ethereum_gas_price
-      })
-      const { balance } = await getTokenBalance({ accountAddress, tokenAddress })
-      res.send({
-        bonusSent: tokenBonus ? tokenBonus.toString() : '0',
-        balance
-      })
-    } catch (error) {
-      console.log(error)
-      await osseus.db_models.tokenFunding.failFunding({ accountAddress, tokenAddress })
-      return res.status(403).send({
-        error: `Funding of ${accountAddress} failed.`
-      })
-    }
+    let fundingObject = await osseus.db_models.tokenFunding.getStartedByAccount({ accountAddress, tokenAddress })
 
-    await osseus.db_models.tokenFunding.finishFunding({ accountAddress, tokenAddress })
+    osseus.lib.agenda.now('fund-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress })
+
+    res.send({
+      id: fundingObject.id,
+      status: fundingObject.fundingStatus
+    })
   }
 
   return {
@@ -179,7 +141,6 @@ module.exports = (osseus) => {
       await fundToken(req, res)
     },
     balanceNative: async (req, res) => {
-      console.log(req.params)
       res.send(await getNativeBalance(req.params))
     },
     balanceToken: async (req, res) => {

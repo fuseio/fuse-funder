@@ -25,13 +25,13 @@ module.exports = (osseus) => {
 
   tokenFunding.startFunding = ({ accountAddress, tokenAddress }) => TokenFunding.findOneAndUpdate({ accountAddress, tokenAddress }, { fundingStatus: 'STARTED', fundingDate: new Date() }, { upsert: true })
 
-  tokenFunding.finishFunding = ({ accountAddress, tokenAddress }) => TokenFunding.update({ accountAddress, tokenAddress }, { fundingStatus: 'SUCCEEDED', fundingDate: new Date() })
+  tokenFunding.finishFunding = ({ accountAddress, tokenAddress }) => TokenFunding.updateOne({ accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'SUCCEEDED', fundingDate: new Date() }})
 
-  tokenFunding.failFunding = ({ accountAddress, tokenAddress }) => TokenFunding.update({ accountAddress, tokenAddress }, { fundingStatus: 'FAILED' })
+  tokenFunding.failFunding = ({ accountAddress, tokenAddress }) => TokenFunding.updateOne({ accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'FAILED' }})
 
   tokenFunding.isFunded = ({ accountAddress, tokenAddress }) => TokenFunding.findOne({ accountAddress, tokenAddress, fundingStatus: { $exists: true } })
 
-  tokenFunding.getByAccount = ({ accountAddress, tokenAddress }) => TokenFunding.findOne({ accountAddress, tokenAddress })
+  tokenFunding.getStartedByAccount = ({ accountAddress, tokenAddress }) => TokenFunding.findOne({ accountAddress, tokenAddress, fundingStatus: 'STARTED' })
 
   tokenFunding.revertFunding = (oldFunding) => TokenFunding.findOneAndUpdate({ accountAddress: oldFunding.accountAddress, tokenAddress: oldFunding.tokenAddress },
     { fundingStatus: oldFunding.fundingStatus, fundingDate: oldFunding.fundingDate })

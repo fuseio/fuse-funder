@@ -2,7 +2,7 @@ const request = require('request')
 const Web3 = require('web3')
 
 const NUM_OF_TRIES = 10
-const REQUEST_URL = 'http://localhost:8080/api/balance/request'
+const REQUEST_URL = 'http://localhost:8080/api/fund/native'
 
 const test = () => {
   const web3 = new Web3()
@@ -13,7 +13,7 @@ const test = () => {
   }
 
   for (let account of accounts) {
-    request.post(`${REQUEST_URL}/${account.address}`, (error, response, body) => {
+    request.post({url: REQUEST_URL, json: {accountAddress: account.address}}, (error, response, body) => {
       if (error) {
         console.log(error)
         return
