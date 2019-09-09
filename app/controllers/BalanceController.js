@@ -99,7 +99,7 @@ module.exports = (osseus) => {
     const { accountAddress, tokenAddress } = req.body
     const tokenBonus = await getTokenBonus(req.body)
 
-    if (!tokenBonus) {
+    if (!get(tokenBonus, 'plugins.joinBonus.hasTransferToFunder')) {
       return res.status(403).send({
         error: `No join bonus defined for token ${tokenAddress}.`
       })
@@ -125,7 +125,7 @@ module.exports = (osseus) => {
 
     let fundingObject = await osseus.db_models.tokenFunding.getStartedByAccount({ accountAddress, tokenAddress })
 
-    osseus.lib.agenda.now('fund-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress })
+    osseus.lib.agenda.now('fund-token', { accountAddress: accountAddress, tokenAddress: tokenAddress })
 
     res.send({
       id: fundingObject.id,

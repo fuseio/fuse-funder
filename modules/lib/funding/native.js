@@ -34,7 +34,7 @@ module.exports = (osseus, agenda) => {
     }
   }
 
-  agenda.define('fund-native', {concurrency: osseus.config.funding_concurrency}, async (job, done) => {
+  agenda.define('fund-native', { concurrency: osseus.config.funding_concurrency }, async (job, done) => {
     if (!job || !job.attrs || !job.attrs.data) {
       return done(new Error(`Job data undefined`))
     }

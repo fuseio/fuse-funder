@@ -35,7 +35,7 @@ module.exports = (osseus, agenda) => {
     }
   }
 
-  agenda.define('fund-token', {concurrency: 1}, async (job, done) => {
+  agenda.define('fund-token', { concurrency: 1 }, async (job, done) => {
     if (!job || !job.attrs || !job.attrs.data) {
       return done(new Error(`Job data undefined`))
     }
