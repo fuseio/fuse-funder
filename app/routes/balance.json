@@ -29,6 +29,16 @@
       }
     }
   },
+  "/fund/native/status/:id": {
+    "GET": {
+      "route": "fundNativeStatus"
+    }
+  },
+  "/fund/token/status/:id": {
+    "GET": {
+      "route": "fundTokenStatus"
+    }
+  },
   "/balance/native/:accountAddress": {
     "GET": {
       "route": "balanceNative"
