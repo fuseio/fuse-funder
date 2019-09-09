@@ -5,6 +5,8 @@ Fuse Funder API. Base url: https://funder-qa.fusenet.io/api
 
 - [Funding](#Funding)
 	- [Fund account with native](#Fund-account-with-native)
+	- [Fetch native funding status](#Fetch-native-funding-status)
+	- [Fetch token funding status](#Fetch-token-funding-status)
 	- [Fund account with token](#Fund-account-with-token)
 	- [Fetch native balance](#Fetch-native-balance)
 	- [Fetch token balance](#Fetch-token-balance)
@@ -33,6 +35,44 @@ POST /fund/native
 |:---------|:-----------|:--------------------------------------|
 | bonusSent | `String` | <p>Join bonus amount</p> |
 | balance | `String` | <p>Native updated balance</p> |
+## <a name='Fetch-native-funding-status'></a> Fetch native funding status
+[Back to top](#top)
+
+
+
+```
+GET /fund/status/:id
+```
+
+### Parameter Parameters
+| Name     | Type       | Description                           |
+|:---------|:-----------|:--------------------------------------|
+| id | `String` | <p>Native funding id</p> |
+
+
+### Success 200
+| Name     | Type       | Description                           |
+|:---------|:-----------|:--------------------------------------|
+| status | `String` | <p>Native funding status</p> |
+## <a name='Fetch-token-funding-status'></a> Fetch token funding status
+[Back to top](#top)
+
+
+
+```
+GET /fund/status/:id
+```
+
+### Parameter Parameters
+| Name     | Type       | Description                           |
+|:---------|:-----------|:--------------------------------------|
+| id | `String` | <p>Token funding id</p> |
+
+
+### Success 200
+| Name     | Type       | Description                           |
+|:---------|:-----------|:--------------------------------------|
+| status | `String` | <p>Token funding status</p> |
 ## <a name='Fund-account-with-token'></a> Fund account with token
 [Back to top](#top)
 

@@ -12,7 +12,7 @@ module.exports = (osseus) => {
    * @apiSuccess {String} balance Native balance
    */
   const getNativeBalance = async ({ accountAddress }) => {
-    const { web3 } = osseus.lib
+    const web3 = osseus.lib.web3.default
     const balance = web3.utils.fromWei(await web3.eth.getBalance(accountAddress))
     return {
       balance
@@ -29,7 +29,7 @@ module.exports = (osseus) => {
    * @apiSuccess {String} balance Token balance
    */
   const getTokenBalance = async ({ accountAddress, tokenAddress }) => {
-    const { web3 } = osseus.lib
+    const web3 = osseus.lib.web3.default
     const token = osseus.lib.token.create(tokenAddress)
     const balance = web3.utils.fromWei(await token.methods.balanceOf(accountAddress).call())
     return {
@@ -133,6 +133,34 @@ module.exports = (osseus) => {
     })
   }
 
+  /**
+   * @api {get} /fund/status/:id Fetch native funding status
+   * @apiParam {String} id Native funding id
+   * @apiName FundStatusNative
+   * @apiGroup Funding
+   *
+   *
+   * @apiSuccess {String} status Native funding status
+   */
+  const getNativeFundingStatus = async ({ id }) => {
+    const fundingObject = await osseus.db_models.nativeFunding.getById(id)
+    return fundingObject ? { status: fundingObject.fundingStatus } : { status: 'NOT_FOUND' }
+  }
+
+  /**
+   * @api {get} /fund/status/:id Fetch token funding status
+   * @apiParam {String} id Token funding id
+   * @apiName FundStatusToken
+   * @apiGroup Funding
+   *
+   *
+   * @apiSuccess {String} status Token funding status
+   */
+  const getTokenFundingStatus = async ({ id }) => {
+    const fundingObject = await osseus.db_models.tokenFunding.getById(id)
+    return fundingObject ? { status: fundingObject.fundingStatus } : { status: 'NOT_FOUND' }
+  }
+
   return {
     fundNative: async (req, res) => {
       await fundNative(req, res)
@@ -145,6 +173,12 @@ module.exports = (osseus) => {
     },
     balanceToken: async (req, res) => {
       res.send(await getTokenBalance(req.params))
+    },
+    fundNativeStatus: async(req, res) => {
+      res.send(await getNativeFundingStatus(req.params))
+    },
+    fundTokenStatus: async(req, res) => {
+      res.send(await getTokenFundingStatus(req.params))
     }
   }
 }

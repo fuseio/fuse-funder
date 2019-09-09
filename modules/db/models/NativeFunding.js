@@ -2,7 +2,7 @@ const moment = require('moment')
 
 module.exports = (osseus) => {
   const { mongo } = osseus
-  const Schema = mongo.mongoose.Schema
+  const { Schema, Types } = mongo.mongoose
 
   const NativeFundingSchema = new Schema({
     accountAddress: { type: String, required: true },
@@ -49,6 +49,8 @@ module.exports = (osseus) => {
       }
     }).count()
   }
+
+  nativeFunding.getById = (id) => NativeFunding.findOne({_id: Types.ObjectId(id)})
 
   return nativeFunding
 }
