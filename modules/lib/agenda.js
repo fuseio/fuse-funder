@@ -9,6 +9,7 @@ module.exports = (osseus) => {
   agenda.on('fail', (error, job) => console.error(`Job ${job.attrs.name} failed. id: ${job.attrs._id}. ${error}`))
 
   require('./funding/native')(osseus, agenda)
+  require('./funding/token')(osseus, agenda)
 
   agenda.start()
 

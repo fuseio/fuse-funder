@@ -28,7 +28,7 @@ module.exports = (osseus, agenda) => {
       await osseus.db_models.nativeFunding.finishFunding({ accountAddress })
       return tx
     } catch (error) {
-      await osseus.db_models.account.unlockAccount(fundingAccount.address)
+      await osseus.db_models.account.unlockAccount(fundingAccount.address, fundingAccount.nonce)
       await osseus.db_models.nativeFunding.failFunding({ accountAddress })
       throw error
     }

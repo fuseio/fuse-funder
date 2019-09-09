@@ -123,28 +123,14 @@ module.exports = (osseus) => {
       })
     }
 
-    try {
-      const amountInWei = osseus.lib.web3.utils.toWei(tokenBonus.toString())
-      const token = osseus.lib.token.create(tokenAddress)
-      await token.methods.transfer(accountAddress, amountInWei).send({
-        from: osseus.config.ethereum_admin_account,
-        gas: osseus.config.ethereum_gas_per_transaction,
-        gasPrice: osseus.config.ethereum_gas_price
-      })
-      const { balance } = await getTokenBalance({ accountAddress, tokenAddress })
-      res.send({
-        bonusSent: tokenBonus ? tokenBonus.toString() : '0',
-        balance
-      })
-    } catch (error) {
-      console.log(error)
-      await osseus.db_models.tokenFunding.failFunding({ accountAddress, tokenAddress })
-      return res.status(403).send({
-        error: `Funding of ${accountAddress} failed.`
-      })
-    }
+    let fundingObject = await osseus.db_models.tokenFunding.getStartedByAccount({ accountAddress, tokenAddress })
 
-    await osseus.db_models.tokenFunding.finishFunding({ accountAddress, tokenAddress })
+    osseus.lib.agenda.now('fund-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress })
+
+    res.send({
+      id: fundingObject.id,
+      status: fundingObject.fundingStatus
+    })
   }
 
   return {
