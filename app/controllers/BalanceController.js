@@ -12,7 +12,7 @@ module.exports = (osseus) => {
    * @apiSuccess {String} balance Native balance
    */
   const getNativeBalance = async ({ accountAddress }) => {
-    const { web3 } = osseus.lib
+    const web3 = osseus.lib.web3.default
     const balance = web3.utils.fromWei(await web3.eth.getBalance(accountAddress))
     return {
       balance
@@ -29,7 +29,7 @@ module.exports = (osseus) => {
    * @apiSuccess {String} balance Token balance
    */
   const getTokenBalance = async ({ accountAddress, tokenAddress }) => {
-    const { web3 } = osseus.lib
+    const web3 = osseus.lib.web3.default
     const token = osseus.lib.token.create(tokenAddress)
     const balance = web3.utils.fromWei(await token.methods.balanceOf(accountAddress).call())
     return {
