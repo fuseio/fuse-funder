@@ -11,6 +11,10 @@
           "tokenAddress": {
             "notEmpty": true,
             "errorMessage": "is missing"
+          },
+          "originNetwork": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
           }
         }
       }

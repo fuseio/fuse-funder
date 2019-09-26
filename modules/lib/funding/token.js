@@ -2,8 +2,13 @@ const request = require('request-promise-native')
 const { get } = require('lodash')
 
 module.exports = (osseus, agenda) => {
-  const getTokenBonus = async ({ tokenAddress }) => {
-    const response = await request.get(`${osseus.config.fuse_studio_api_base}/communities?homeTokenAddress=${tokenAddress}`)
+  const getTokenBonus = async ({ tokenAddress, originNetwork }) => {
+    const urlComponents = osseus.config.fuse_studio_api_base.split('.')
+    if (originNetwork == 'ropsten') {
+      urlComponents[0] = `${urlComponents[0]}-ropsten`
+    }
+    const baseURL = urlComponents.join('.')
+    const response = await request.get(`${baseURL}/communities?homeTokenAddress=${tokenAddress}`)
     const community = get(JSON.parse(response), 'data')
     return get(community, 'plugins.joinBonus.joinInfo.amount')
   }
@@ -13,12 +18,12 @@ module.exports = (osseus, agenda) => {
     return transactionCount
   }
 
-  const fundToken = async ({ accountAddress, tokenAddress }) => {
+  const fundToken = async ({ accountAddress, tokenAddress, originNetwork }) => {
     try {
       const web3 = osseus.lib.web3.default
       const fundingAccountAddress = osseus.config.ethereum_admin_account
       const fundingAccountNonce = await getNonce(web3, fundingAccountAddress)
-      const tokenBonus = await getTokenBonus({ tokenAddress })
+      const tokenBonus = await getTokenBonus({ tokenAddress, originNetwork })
       const tokenBonusAmountInWei = web3.utils.toWei(tokenBonus.toString())
       const token = osseus.lib.token.create(tokenAddress)
       let tx = await token.methods.transfer(accountAddress, tokenBonusAmountInWei).send({
@@ -39,16 +44,19 @@ module.exports = (osseus, agenda) => {
     if (!job || !job.attrs || !job.attrs.data) {
       return done(new Error(`Job data undefined`))
     }
-    let { accountAddress, tokenAddress } = job.attrs.data
+    let { accountAddress, tokenAddress, originNetwork } = job.attrs.data
     if (!accountAddress) {
       return done(new Error(`Job data is missing "accountAddress"`))
     }
     if (!tokenAddress) {
       return done(new Error(`Job data is missing "tokenAddress"`))
     }
+    if (!originNetwork) {
+      return done(new Error(`Job data is missing "originNetwork"`))
+    }
 
     try {
-      let tx = await fundToken({ accountAddress, tokenAddress })
+      let tx = await fundToken({ accountAddress, tokenAddress, originNetwork })
       done(null, tx)
     } catch (err) {
       done(err)
