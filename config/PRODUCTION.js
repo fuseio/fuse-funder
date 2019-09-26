@@ -26,6 +26,6 @@ module.exports = {
   ETHEREUM_TOKEN_BONUS: '1e20',
   ETHEREUM_FUNDINGS_CAP_PER_DAY: 1000,
   ETHEREUM_GAS_PRICE: '1e9',
-  FUSE_STUDIO_API_BASE: 'https://studio-ropsten.fusenet.io/api/v1',
+  FUSE_STUDIO_API_BASE: 'https://studio.fusenet.io/api/v1',
   FUNDING_CONCURRENCY: 5
 }

@@ -37,8 +37,13 @@ module.exports = (osseus) => {
     }
   }
 
-  const getTokenBonus = async ({ tokenAddress }) => {
-    const response = await request.get(`${osseus.config.fuse_studio_api_base}/communities?homeTokenAddress=${tokenAddress}`)
+  const getTokenBonus = async ({ tokenAddress, originNetwork }) => {
+    const urlComponents = osseus.config.fuse_studio_api_base.split('.')
+    if (originNetwork == 'ropsten') {
+      urlComponents[0] = `${urlComponents[0]}-ropsten`
+    }
+    const baseURL = urlComponents.join('.')
+    const response = await request.get(`${baseURL}/communities?homeTokenAddress=${tokenAddress}`)
     const community = get(JSON.parse(response), 'data')
     return get(community, 'plugins.joinBonus.joinInfo.amount')
   }
@@ -96,7 +101,7 @@ module.exports = (osseus) => {
    * @apiSuccess {String} balance Token updated balance
    */
   const fundToken = async (req, res) => {
-    const { accountAddress, tokenAddress } = req.body
+    const { accountAddress, tokenAddress, originNetwork } = req.body
     const tokenBonus = await getTokenBonus(req.body)
 
     if (!tokenBonus) {
@@ -125,7 +130,7 @@ module.exports = (osseus) => {
 
     let fundingObject = await osseus.db_models.tokenFunding.getStartedByAccount({ accountAddress, tokenAddress })
 
-    osseus.lib.agenda.now('fund-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress })
+    osseus.lib.agenda.now('fund-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress, originNetwork })
 
     res.send({
       id: fundingObject.id,
