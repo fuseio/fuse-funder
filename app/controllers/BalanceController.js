@@ -57,7 +57,7 @@ module.exports = (osseus) => {
    *
    *
    * @apiSuccess {String} id Task id of the funding job
-   * @apiSuccess {String} status Current Status of the job.
+   * @apiSuccess {String} status Current status of the job. Should be "STARTED" if all good.
    */
   const fundNative = async (req, res) => {
     const { accountAddress, tokenAddress } = req.body
@@ -98,7 +98,7 @@ module.exports = (osseus) => {
    *
    *
    * @apiSuccess {String} id Task id of the funding job
-   * @apiSuccess {String} status Current Status of the job
+   * @apiSuccess {String} status Current status of the job. Should be "STARTED" if all good.
    */
   const fundToken = async (req, res) => {
     const { accountAddress, tokenAddress, originNetwork } = req.body
@@ -141,12 +141,11 @@ module.exports = (osseus) => {
   /**
    * @api {get} /fund/status/:id Fetch native funding status
    * @apiParam {String} id Native funding id
-   * @apiDescription Possible statuses are: STARTED, SUCCEEDED or FAILED
    * @apiName FundStatusNative
    * @apiGroup Funding
    *
    *
-   * @apiSuccess {String} status Native funding status
+   * @apiSuccess {String} status Native funding status, can be STARTED, SUCCEEDED or FAILED.
    */
   const getNativeFundingStatus = async ({ id }) => {
     const fundingObject = await osseus.db_models.nativeFunding.getById(id)
@@ -156,12 +155,11 @@ module.exports = (osseus) => {
   /**
    * @api {get} /fund/status/:id Fetch token funding status
    * @apiParam {String} id Token funding id
-   * @apiDescription Possible statuses are: STARTED, SUCCEEDED or FAILED
    * @apiName FundStatusToken
    * @apiGroup Funding
    *
    *
-   * @apiSuccess {String} status Token funding status
+   * @apiSuccess {String} status Token funding status, can be STARTED, SUCCEEDED or FAILED.
    */
   const getTokenFundingStatus = async ({ id }) => {
     const fundingObject = await osseus.db_models.tokenFunding.getById(id)
