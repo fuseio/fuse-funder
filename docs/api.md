@@ -33,12 +33,12 @@ POST /fund/native
 ### Success 200
 | Name     | Type       | Description                           |
 |:---------|:-----------|:--------------------------------------|
-| bonusSent | `String` | <p>Join bonus amount</p> |
-| balance | `String` | <p>Native updated balance</p> |
+| id | `String` | <p>Task id of the funding job</p> |
+| status | `String` | <p>Current Status of the job.</p> |
 ## <a name='Fetch-native-funding-status'></a> Fetch native funding status
 [Back to top](#top)
 
-
+<p>Possible statuses are: STARTED, SUCCEEDED or FAILED</p>
 
 ```
 GET /fund/status/:id
@@ -57,7 +57,7 @@ GET /fund/status/:id
 ## <a name='Fetch-token-funding-status'></a> Fetch token funding status
 [Back to top](#top)
 
-
+<p>Possible statuses are: STARTED, SUCCEEDED or FAILED</p>
 
 ```
 GET /fund/status/:id
@@ -92,8 +92,8 @@ POST /fund/token
 ### Success 200
 | Name     | Type       | Description                           |
 |:---------|:-----------|:--------------------------------------|
-| bonusSent | `String` | <p>Join bonus amount</p> |
-| balance | `String` | <p>Token updated balance</p> |
+| id | `String` | <p>Task id of the funding job</p> |
+| status | `String` | <p>Current Status of the job</p> |
 ## <a name='Fetch-native-balance'></a> Fetch native balance
 [Back to top](#top)
 
