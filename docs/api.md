@@ -33,8 +33,8 @@ POST /fund/native
 ### Success 200
 | Name     | Type       | Description                           |
 |:---------|:-----------|:--------------------------------------|
-| bonusSent | `String` | <p>Join bonus amount</p> |
-| balance | `String` | <p>Native updated balance</p> |
+| id | `String` | <p>Task id of the funding job</p> |
+| status | `String` | <p>Current status of the job. Should be &quot;STARTED&quot; if all good.</p> |
 ## <a name='Fetch-native-funding-status'></a> Fetch native funding status
 [Back to top](#top)
 
@@ -53,7 +53,7 @@ GET /fund/status/:id
 ### Success 200
 | Name     | Type       | Description                           |
 |:---------|:-----------|:--------------------------------------|
-| status | `String` | <p>Native funding status</p> |
+| status | `String` | <p>Native funding status, can be STARTED, SUCCEEDED or FAILED.</p> |
 ## <a name='Fetch-token-funding-status'></a> Fetch token funding status
 [Back to top](#top)
 
@@ -72,7 +72,7 @@ GET /fund/status/:id
 ### Success 200
 | Name     | Type       | Description                           |
 |:---------|:-----------|:--------------------------------------|
-| status | `String` | <p>Token funding status</p> |
+| status | `String` | <p>Token funding status, can be STARTED, SUCCEEDED or FAILED.</p> |
 ## <a name='Fund-account-with-token'></a> Fund account with token
 [Back to top](#top)
 
@@ -92,8 +92,8 @@ POST /fund/token
 ### Success 200
 | Name     | Type       | Description                           |
 |:---------|:-----------|:--------------------------------------|
-| bonusSent | `String` | <p>Join bonus amount</p> |
-| balance | `String` | <p>Token updated balance</p> |
+| id | `String` | <p>Task id of the funding job</p> |
+| status | `String` | <p>Current status of the job. Should be &quot;STARTED&quot; if all good.</p> |
 ## <a name='Fetch-native-balance'></a> Fetch native balance
 [Back to top](#top)
 

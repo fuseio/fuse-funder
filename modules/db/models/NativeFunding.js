@@ -24,7 +24,7 @@ module.exports = (osseus) => {
 
   nativeFunding.startFunding = ({ accountAddress }) => NativeFunding.findOneAndUpdate({ accountAddress }, { fundingStatus: 'STARTED', fundingDate: new Date() }, { upsert: true })
 
-  nativeFunding.finishFunding = ({ accountAddress }) => NativeFunding.updateOne({ accountAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'SUCCEEDED', fundingDate: new Date() }})
+  nativeFunding.finishFunding = ({ accountAddress }) => NativeFunding.updateOne({ accountAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'SUCCEEDED', fundingDate: new Date() } })
 
   nativeFunding.failFunding = ({ accountAddress }) => NativeFunding.updateOne({ accountAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'FAILED' } })
 
@@ -50,7 +50,7 @@ module.exports = (osseus) => {
     }).count()
   }
 
-  nativeFunding.getById = (id) => NativeFunding.findOne({_id: Types.ObjectId(id)})
+  nativeFunding.getById = (id) => NativeFunding.findOne({ _id: Types.ObjectId(id) })
 
   return nativeFunding
 }

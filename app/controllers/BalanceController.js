@@ -39,7 +39,7 @@ module.exports = (osseus) => {
 
   const getTokenBonus = async ({ tokenAddress, originNetwork }) => {
     const urlComponents = osseus.config.fuse_studio_api_base.split('.')
-    if (originNetwork == 'ropsten') {
+    if (originNetwork === 'ropsten') {
       urlComponents[0] = `${urlComponents[0]}-ropsten`
     }
     const baseURL = urlComponents.join('.')
@@ -56,8 +56,8 @@ module.exports = (osseus) => {
    * @apiGroup Funding
    *
    *
-   * @apiSuccess {String} bonusSent Join bonus amount
-   * @apiSuccess {String} balance Native updated balance
+   * @apiSuccess {String} id Task id of the funding job
+   * @apiSuccess {String} status Current status of the job. Should be "STARTED" if all good.
    */
   const fundNative = async (req, res) => {
     const { accountAddress, tokenAddress } = req.body
@@ -81,7 +81,7 @@ module.exports = (osseus) => {
 
     let fundingObject = await osseus.db_models.nativeFunding.getStartedByAccount({ accountAddress })
 
-    osseus.lib.agenda.now('fund-native', { accountAddress: accountAddress, tokenAddress:  tokenAddress})
+    osseus.lib.agenda.now('fund-native', { accountAddress, tokenAddress })
 
     res.send({
       id: fundingObject.id,
@@ -97,8 +97,8 @@ module.exports = (osseus) => {
    * @apiGroup Funding
    *
    *
-   * @apiSuccess {String} bonusSent Join bonus amount
-   * @apiSuccess {String} balance Token updated balance
+   * @apiSuccess {String} id Task id of the funding job
+   * @apiSuccess {String} status Current status of the job. Should be "STARTED" if all good.
    */
   const fundToken = async (req, res) => {
     const { accountAddress, tokenAddress, originNetwork } = req.body
@@ -145,7 +145,7 @@ module.exports = (osseus) => {
    * @apiGroup Funding
    *
    *
-   * @apiSuccess {String} status Native funding status
+   * @apiSuccess {String} status Native funding status, can be STARTED, SUCCEEDED or FAILED.
    */
   const getNativeFundingStatus = async ({ id }) => {
     const fundingObject = await osseus.db_models.nativeFunding.getById(id)
@@ -159,7 +159,7 @@ module.exports = (osseus) => {
    * @apiGroup Funding
    *
    *
-   * @apiSuccess {String} status Token funding status
+   * @apiSuccess {String} status Token funding status, can be STARTED, SUCCEEDED or FAILED.
    */
   const getTokenFundingStatus = async ({ id }) => {
     const fundingObject = await osseus.db_models.tokenFunding.getById(id)
@@ -179,10 +179,10 @@ module.exports = (osseus) => {
     balanceToken: async (req, res) => {
       res.send(await getTokenBalance(req.params))
     },
-    fundNativeStatus: async(req, res) => {
+    fundNativeStatus: async (req, res) => {
       res.send(await getNativeFundingStatus(req.params))
     },
-    fundTokenStatus: async(req, res) => {
+    fundTokenStatus: async (req, res) => {
       res.send(await getTokenFundingStatus(req.params))
     }
   }
