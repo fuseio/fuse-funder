@@ -1,7 +1,7 @@
 <a name="top"></a>
 # fuse-funder v0.2.0
 
-Fuse Funder API. Base url: https://funder-qa.fusenet.io/api
+Fuse Funder API. Base url: https://funder-qa.fuse.io/api
 
 - [Funding](#Funding)
 	- [Fund account with native](#Fund-account-with-native)

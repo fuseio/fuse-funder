@@ -60,7 +60,7 @@ module.exports = (osseus) => {
    * @apiSuccess {String} status Current status of the job. Should be "STARTED" if all good.
    */
   const fundNative = async (req, res) => {
-    const { accountAddress, tokenAddress } = req.body
+    const { accountAddress, tokenAddress, networkType } = req.body
     const oldFunding = await osseus.db_models.nativeFunding.startFunding({ accountAddress })
 
     if (oldFunding && oldFunding.fundingStatus !== 'FAILED') {
@@ -81,7 +81,7 @@ module.exports = (osseus) => {
 
     let fundingObject = await osseus.db_models.nativeFunding.getStartedByAccount({ accountAddress })
 
-    osseus.lib.agenda.now('fund-native', { accountAddress, tokenAddress })
+    osseus.lib.agenda.now('fund-native', { accountAddress, tokenAddress, networkType })
 
     res.send({
       id: fundingObject.id,
