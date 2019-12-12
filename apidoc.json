@@ -1,10 +1,10 @@
 {
   "name": "fuse-funder",
   "version": "0.2.0",
-  "description": "Fuse Funder API. Base url: https://funder-qa.fusenet.io/api",
+  "description": "Fuse Funder API. Base url: https://funder-qa.fuse.io/api",
   "title": "Fuse API",
-  "url" : "https://funder-qa.fusenet.io/api",
-  "sampleUrl": "https://funder-qa.fusenet.io/api",
+  "url" : "https://funder-qa.fuse.io/api",
+  "sampleUrl": "https://funder-qa.fuse.io/api",
   "template": {
   	"withCompare": true,
   	"withGenerator": true
