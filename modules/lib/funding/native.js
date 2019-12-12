@@ -2,7 +2,7 @@ const request = require('request-promise-native')
 const { get } = require('lodash')
 
 module.exports = (osseus, agenda) => {
-  const getNativeBonus = async ({ accountAddress, tokenAddress, networkType }) => {
+  const getNativeBonus = async ({ accountAddress, tokenAddress, networkType = 'ropsten' }) => {
     if (!tokenAddress) {
       return osseus.config.ethereum_native_user_bonus
     }
