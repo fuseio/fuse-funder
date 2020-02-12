@@ -4,6 +4,7 @@ const init = (osseus) => {
     this.osseus.db_models = {
       nativeFunding: require('./models/NativeFunding')(this.osseus),
       tokenFunding: require('./models/TokenFunding')(this.osseus),
+      tokenBonus: require('./models/TokenBonus')(this.osseus),
       account: require('./models/Account')(this.osseus)
     }
     this.osseus.logger.info(`DB ready`)

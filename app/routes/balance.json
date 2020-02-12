@@ -52,5 +52,30 @@
     "GET": {
       "route": "balanceToken"
     }
+  },
+  "/bonus/token": {
+    "POST": {
+      "route": "bonusToken",
+      "validators": {
+        "body": {
+          "accountAddress": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
+          },
+          "tokenAddress": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
+          },
+          "originNetwork": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
+          },
+          "bonusInfo": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
+          }
+        }
+      }
+    }
   }
 }
