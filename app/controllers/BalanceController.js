@@ -160,7 +160,7 @@ module.exports = (osseus) => {
 
     if (!tokenBonus) {
       return res.status(403).send({
-        error: `No join bonus defined for token ${tokenAddress}.`
+        error: `No ${bonusType} defined for token ${tokenAddress}.`
       })
     }
 
