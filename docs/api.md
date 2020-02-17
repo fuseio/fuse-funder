@@ -3,6 +3,10 @@
 
 Fuse Funder API. Base url: https://funder-qa.fuse.io/api
 
+- [Bonus](#Bonus)
+	- [Fetch token funding status](#Fetch-token-funding-status)
+	- [Bonus account with token](#Bonus-account-with-token)
+	
 - [Funding](#Funding)
 	- [Fund account with native](#Fund-account-with-native)
 	- [Fetch native funding status](#Fetch-native-funding-status)
@@ -12,6 +16,49 @@ Fuse Funder API. Base url: https://funder-qa.fuse.io/api
 	- [Fetch token balance](#Fetch-token-balance)
 	
 
+# <a name='Bonus'></a> Bonus
+
+## <a name='Fetch-token-funding-status'></a> Fetch token funding status
+[Back to top](#top)
+
+
+
+```
+GET /bonus/status/:id
+```
+
+### Parameter Parameters
+| Name     | Type       | Description                           |
+|:---------|:-----------|:--------------------------------------|
+| id | `String` | <p>Token bonus id</p> |
+
+
+### Success 200
+| Name     | Type       | Description                           |
+|:---------|:-----------|:--------------------------------------|
+| status | `String` | <p>Token bonus status, can be STARTED, SUCCEEDED or FAILED.</p> |
+## <a name='Bonus-account-with-token'></a> Bonus account with token
+[Back to top](#top)
+
+
+
+```
+POST /bonus/token
+```
+
+### Parameter Parameters
+| Name     | Type       | Description                           |
+|:---------|:-----------|:--------------------------------------|
+| accountAddress | `String` | <p>Account address to give bonus</p> |
+| tokenAddress | `String` | <p>Token address of the token to give as bonus</p> |
+| bonusInfo | `Object` | <p>The reason for the bonus</p> |
+
+
+### Success 200
+| Name     | Type       | Description                           |
+|:---------|:-----------|:--------------------------------------|
+| id | `String` | <p>Task id of the bonus job</p> |
+| status | `String` | <p>Current status of the job. Should be &quot;STARTED&quot; if all good.</p> |
 # <a name='Funding'></a> Funding
 
 ## <a name='Fund-account-with-native'></a> Fund account with native
