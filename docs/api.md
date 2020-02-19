@@ -15,6 +15,9 @@ Fuse Funder API. Base url: https://funder-qa.fuse.io/api
 	- [Fetch native balance](#Fetch-native-balance)
 	- [Fetch token balance](#Fetch-token-balance)
 	
+- [Job](#Job)
+	- [Fetch job by id](#Fetch-job-by-id)
+	
 
 # <a name='Bonus'></a> Bonus
 
@@ -179,3 +182,24 @@ GET /balance/token/:accountAddress/:tokenAddress
 | Name     | Type       | Description                           |
 |:---------|:-----------|:--------------------------------------|
 | balance | `String` | <p>Token balance</p> |
+# <a name='Job'></a> Job
+
+## <a name='Fetch-job-by-id'></a> Fetch job by id
+[Back to top](#top)
+
+
+
+```
+GET /job/:id
+```
+
+### Parameter Parameters
+| Name     | Type       | Description                           |
+|:---------|:-----------|:--------------------------------------|
+| id | `String` | <p>Job id</p> |
+
+
+### Success 200
+| Name     | Type       | Description                           |
+|:---------|:-----------|:--------------------------------------|
+| data | `Object` | <p>Job object</p> |

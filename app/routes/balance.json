@@ -82,5 +82,10 @@
         }
       }
     }
+  },
+  "/job/:id": {
+    "GET": {
+      "route": "jobStatus"
+    }
   }
 }

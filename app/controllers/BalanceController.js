@@ -233,6 +233,19 @@ module.exports = (osseus) => {
     return bonusObject ? { status: bonusObject.bonusStatus } : { status: 'NOT_FOUND' }
   }
 
+  /**
+   * @api {get} /job/:id Fetch job by id
+   * @apiParam {String} id Job id
+   * @apiName GetJob
+   * @apiGroup Job
+   *
+   * @apiSuccess {Object} data Job object
+   */
+  const getJobStatus = async ({ id }) => {
+    const jobs = await osseus.lib.agenda.jobs({ _id: osseus.mongo.mongoose.Types.ObjectId(id) })
+    return { data: jobs[0] }
+  }
+
   return {
     fundNative: async (req, res) => {
       await fundNative(req, res)
@@ -257,6 +270,9 @@ module.exports = (osseus) => {
     },
     bonusTokenStatus: async (req, res) => {
       res.send(await getTokenBonusStatus(req.params))
+    },
+    jobStatus: async (req, res) => {
+      res.send(await getJobStatus(req.params))
     }
   }
 }
