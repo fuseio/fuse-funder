@@ -43,6 +43,11 @@
       "route": "fundTokenStatus"
     }
   },
+  "/bonus/token/status/:id": {
+    "GET": {
+      "route": "bonusTokenStatus"
+    }
+  },
   "/balance/native/:accountAddress": {
     "GET": {
       "route": "balanceNative"
