@@ -230,7 +230,7 @@ module.exports = (osseus) => {
    */
   const getTokenBonusStatus = async ({ id }) => {
     const bonusObject = await osseus.db_models.tokenBonus.getById(id)
-    return bonusObject ? { status: bonusObject.fundingStatus } : { status: 'NOT_FOUND' }
+    return bonusObject ? { status: bonusObject.bonusStatus } : { status: 'NOT_FOUND' }
   }
 
   return {
