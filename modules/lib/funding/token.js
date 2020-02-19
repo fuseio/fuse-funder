@@ -111,8 +111,16 @@ module.exports = (osseus, agenda) => {
 
     try {
       let tx = await bonusToken({ accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
+
+      job.attrs.data.txHash = tx
+      job.attrs.data.status = 'SUCCEEDED'
+      job.save()
+
       done(null, tx)
     } catch (err) {
+      job.attrs.data.status = 'FAILED'
+      job.save()
+
       done(err)
     }
   })
