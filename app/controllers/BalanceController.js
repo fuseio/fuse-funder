@@ -132,7 +132,7 @@ module.exports = (osseus) => {
 
     let fundingObject = await osseus.db_models.tokenFunding.getStartedByAccount({ accountAddress, tokenAddress })
 
-    const job = osseus.lib.agenda.now('fund-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress, originNetwork, bonusType })
+    const job = await osseus.lib.agenda.now('fund-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress, originNetwork, bonusType })
 
     res.send({ job: job.attrs })
   }
