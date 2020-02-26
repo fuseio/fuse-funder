@@ -1,5 +1,3 @@
-const moment = require('moment')
-
 module.exports = (osseus) => {
   const { mongo } = osseus
   const { Schema, Types } = mongo.mongoose
@@ -12,7 +10,7 @@ module.exports = (osseus) => {
     bonusStatus: { type: String, enum: ['STARTED', 'SUCCEEDED', 'FAILED'], default: 'STARTED' },
     bonusDate: { type: Date },
     bonusType: { type: String, required: true },
-    bonusId: { type: String, required: true}
+    bonusId: { type: String, required: true }
   }, { timestamps: true })
 
   TokenBonusSchema.index({ phoneNumber: 1, accountAddress: 1, tokenAddress: 1, bonusType: 1, bonusId: 1 })
@@ -28,13 +26,13 @@ module.exports = (osseus) => {
 
   tokenBonus.startBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.findOneAndUpdate({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }, { bonusStatus: 'STARTED', bonusDate: new Date() }, { upsert: true })
 
-  tokenBonus.finishBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.updateOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'SUCCEEDED', bonusDate: new Date() }})
+  tokenBonus.finishBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.updateOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'SUCCEEDED', bonusDate: new Date() } })
 
-  tokenBonus.failBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.updateOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'FAILED' }})
+  tokenBonus.failBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.updateOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'FAILED' } })
 
-  tokenBonus.bonusesCount = ({ phoneNumber, tokenAddress, bonusType }) => TokenBonus.find({ phoneNumber, tokenAddress, bonusType, bonusStatus: {$in: ['STARTED', 'SUCCEEDED']} }).count()
+  tokenBonus.bonusesCount = ({ phoneNumber, tokenAddress, bonusType }) => TokenBonus.find({ phoneNumber, tokenAddress, bonusType, bonusStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
 
-  tokenBonus.getById = (id) => TokenBonus.findOne({_id: Types.ObjectId(id)})
+  tokenBonus.getById = (id) => TokenBonus.findOne({ _id: Types.ObjectId(id) })
 
   return tokenBonus
 }

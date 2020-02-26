@@ -15,16 +15,14 @@ const test = () => {
   }
 
   for (let account of accounts) {
-    request.post({url: REQUEST_URL_NATIVE, json: {accountAddress: account.address}}, (error, response, body) => {
+    request.post({ url: REQUEST_URL_NATIVE, json: { accountAddress: account.address } }, (error, response, body) => {
       if (error) {
         console.log(error)
-        return
       }
     })
-    request.post({url: REQUEST_URL_TOKEN, json: {accountAddress: account.address, tokenAddress: TOKEN_ADDRESS}}, (error, response, body) => {
+    request.post({ url: REQUEST_URL_TOKEN, json: { accountAddress: account.address, tokenAddress: TOKEN_ADDRESS } }, (error, response, body) => {
       if (error) {
         console.log(error)
-        return
       }
     })
   }

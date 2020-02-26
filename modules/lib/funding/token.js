@@ -4,7 +4,7 @@ const { get } = require('lodash')
 module.exports = (osseus, agenda) => {
   const getTokenBonus = async ({ tokenAddress, originNetwork, bonusType }) => {
     const urlComponents = osseus.config.fuse_studio_api_base.split('.')
-    if (originNetwork == 'ropsten') {
+    if (originNetwork === 'ropsten') {
       urlComponents[0] = `${urlComponents[0]}-ropsten`
     }
     const baseURL = urlComponents.join('.')
@@ -40,7 +40,7 @@ module.exports = (osseus, agenda) => {
     }
   }
 
-  agenda.define('fund-token', {concurrency: 1}, async (job, done) => {
+  agenda.define('fund-token', { concurrency: 1 }, async (job, done) => {
     if (!job || !job.attrs || !job.attrs.data) {
       return done(new Error(`Job data undefined`))
     }
@@ -96,7 +96,7 @@ module.exports = (osseus, agenda) => {
     }
   }
 
-  agenda.define('bonus-token', {concurrency: 1}, async (job, done) => {
+  agenda.define('bonus-token', { concurrency: 1 }, async (job, done) => {
     if (!job || !job.attrs || !job.attrs.data) {
       return done(new Error(`Job data undefined`))
     }

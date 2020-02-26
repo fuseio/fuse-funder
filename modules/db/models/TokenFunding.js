@@ -25,9 +25,9 @@ module.exports = (osseus) => {
 
   tokenFunding.startFunding = ({ accountAddress, tokenAddress }) => TokenFunding.findOneAndUpdate({ accountAddress, tokenAddress }, { fundingStatus: 'STARTED', fundingDate: new Date() }, { upsert: true })
 
-  tokenFunding.finishFunding = ({ accountAddress, tokenAddress }) => TokenFunding.updateOne({ accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'SUCCEEDED', fundingDate: new Date() }})
+  tokenFunding.finishFunding = ({ accountAddress, tokenAddress }) => TokenFunding.updateOne({ accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'SUCCEEDED', fundingDate: new Date() } })
 
-  tokenFunding.failFunding = ({ accountAddress, tokenAddress }) => TokenFunding.updateOne({ accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'FAILED' }})
+  tokenFunding.failFunding = ({ accountAddress, tokenAddress }) => TokenFunding.updateOne({ accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'FAILED' } })
 
   tokenFunding.isFunded = ({ accountAddress, tokenAddress }) => TokenFunding.findOne({ accountAddress, tokenAddress, fundingStatus: { $exists: true } })
 
@@ -51,7 +51,7 @@ module.exports = (osseus) => {
     }).count()
   }
 
-  tokenFunding.getById = (id) => TokenFunding.findOne({_id: Types.ObjectId(id)})
+  tokenFunding.getById = (id) => TokenFunding.findOne({ _id: Types.ObjectId(id) })
 
   return tokenFunding
 }

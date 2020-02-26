@@ -26,7 +26,7 @@ module.exports = (osseus) => {
   }
 
   account.unlockAccount = (address, nonce) => {
-    return Account.updateOne({ address }, { $set: { isLocked: false, lockingTime: null, nonce }})
+    return Account.updateOne({ address }, { $set: { isLocked: false, lockingTime: null, nonce } })
   }
 
   return account
