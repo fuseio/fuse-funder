@@ -74,7 +74,7 @@ module.exports = (osseus, agenda) => {
     }
   })
 
-  const bonusToken = async ({ accountAddress, tokenAddress, originNetwork, bonusType, bonusId }) => {
+  const bonusToken = async ({ phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType, bonusId }) => {
     try {
       const web3 = osseus.lib.web3.default
       const fundingAccountAddress = osseus.config.ethereum_admin_account
@@ -88,10 +88,10 @@ module.exports = (osseus, agenda) => {
         gasPrice: osseus.config.ethereum_gas_price,
         nonce: fundingAccountNonce
       })
-      await osseus.db_models.tokenBonus.finishBonus({ accountAddress, tokenAddress, bonusId })
+      await osseus.db_models.tokenBonus.finishBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
       return tx
     } catch (error) {
-      await osseus.db_models.tokenBonus.failBonus({ accountAddress, tokenAddress, bonusId })
+      await osseus.db_models.tokenBonus.failBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
       throw error
     }
   }

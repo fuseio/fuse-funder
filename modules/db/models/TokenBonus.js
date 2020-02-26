@@ -5,15 +5,17 @@ module.exports = (osseus) => {
   const { Schema, Types } = mongo.mongoose
 
   const TokenBonusSchema = new Schema({
+    phoneNumber: { type: String, required: true },
     accountAddress: { type: String, required: true },
     tokenAddress: { type: String, required: true },
     done: { type: Boolean, default: false },
     bonusStatus: { type: String },
     bonusDate: { type: Date },
+    bonusType: { type: String, required: true },
     bonusId: { type: String, required: true}
   }, { timestamps: true })
 
-  TokenBonusSchema.index({ accountAddress: 1, tokenAddress: 1, bonusId: 1 }, { unique: true })
+  TokenBonusSchema.index({ phoneNumber: 1, accountAddress: 1, tokenAddress: 1, bonusType: 1, bonusId: 1 }, { unique: true })
   TokenBonusSchema.index({ bonusDate: -1 })
 
   TokenBonusSchema.set('toJSON', {
@@ -24,20 +26,18 @@ module.exports = (osseus) => {
 
   function tokenBonus () {}
 
-  tokenBonus.startBonus = ({ accountAddress, tokenAddress, bonusId }) => TokenBonus.findOneAndUpdate({ accountAddress, tokenAddress, bonusId }, { bonusStatus: 'STARTED', bonusDate: new Date() }, { upsert: true })
+  tokenBonus.startBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.findOneAndUpdate({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }, { bonusStatus: 'STARTED', bonusDate: new Date() }, { upsert: true })
 
-  tokenBonus.finishBonus = ({ accountAddress, tokenAddress, bonusId }) => TokenBonus.updateOne({ accountAddress, tokenAddress, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'SUCCEEDED', bonusDate: new Date() }})
+  tokenBonus.finishBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.updateOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'SUCCEEDED', bonusDate: new Date() }})
 
-  tokenBonus.failBonus = ({ accountAddress, tokenAddress, bonusId }) => TokenBonus.updateOne({ accountAddress, tokenAddress, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'FAILED' }})
+  tokenBonus.failBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.updateOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'FAILED' }})
 
-  tokenBonus.isFunded = ({ accountAddress, tokenAddress, bonusId }) => TokenBonus.findOne({ accountAddress, tokenAddress, bonusId, bonusStatus: { $exists: true } })
+  tokenBonus.getStarted = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.findOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' })
 
-  tokenBonus.getStartedByAccount = ({ accountAddress, tokenAddress, bonusId }) => TokenBonus.findOne({ accountAddress, tokenAddress, bonusId, bonusStatus: 'STARTED' })
-
-  tokenBonus.revertBonus = (oldBonus) => TokenBonus.findOneAndUpdate({ accountAddress: oldBonus.accountAddress, tokenAddress: oldBonus.tokenAddress },
+  tokenBonus.revertBonus = (oldBonus) => TokenBonus.findOneAndUpdate({ phoneNumber: oldBonus.phoneNumber, accountAddress: oldBonus.accountAddress, tokenAddress: oldBonus.tokenAddress, bonusType: oldBonus.bonusType, bonusId: oldBonus.bonusId },
     { bonusStatus: oldBonus.bonusStatus, bonusDate: oldBonus.bonusDate })
 
-  tokenBonus.bonusesPerAccount = ({ accountAddress, tokenAddress }) => TokenBonus.find({ accountAddress, tokenAddress, bonusStatus: {$in: ['STARTED', 'SUCCEEDED']} }).count()
+  tokenBonus.bonusesCount = ({ phoneNumber, tokenAddress, bonusType }) => TokenBonus.find({ phoneNumber, tokenAddress, bonusType, bonusStatus: {$in: ['STARTED', 'SUCCEEDED']} }).count()
 
   tokenBonus.getById = (id) => TokenBonus.findOne({_id: Types.ObjectId(id)})
 

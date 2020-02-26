@@ -150,7 +150,7 @@ module.exports = (osseus) => {
    * @apiSuccess {String} status Current status of the job. Should be "STARTED" if all good.
    */
   const bonusToken = async (req, res) => {
-    const { accountAddress, tokenAddress, bonusInfo, originNetwork } = req.body
+    const { phoneNumber, accountAddress, tokenAddress, bonusInfo, originNetwork } = req.body
     const { bonusType, bonusId } = bonusInfo
     const community = await getCommunity({ tokenAddress, originNetwork })
     const tokenBonus = get(community, `${bonusType}.amount`)
@@ -161,27 +161,27 @@ module.exports = (osseus) => {
       })
     }
 
-    const oldBonus = await osseus.db_models.tokenBonus.startBonus({ accountAddress, tokenAddress, bonusId })
+    const oldBonus = await osseus.db_models.tokenBonus.startBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
 
     if (oldBonus && oldBonus.bonusStatus !== 'FAILED') {
       await osseus.db_models.tokenBonus.revertBonus(oldBonus)
       return res.status(403).send({
-        error: `Account ${accountAddress} already received bonus for bonusId: ${bonusId}.`
+        error: `Already received bonus [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
       })
     }
 
     const tokenBonusMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
 
-    const bonusesCount = await osseus.db_models.tokenBonus.bonusesPerAccount({ accountAddress, tokenAddress })
+    const bonusesCount = await osseus.db_models.tokenBonus.bonusesCount({ phoneNumber, tokenAddress, bonusType })
 
     if (bonusesCount > tokenBonusMaxTimes) {
-      await osseus.db_models.tokenBonus.failBonus({ accountAddress, tokenAddress, bonusId })
+      await osseus.db_models.tokenBonus.failBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
       return res.status(403).send({
-        error: `Bonus of ${accountAddress} for bonusId: ${bonusId} failed. Reached maximum times ${tokenBonusMaxTimes}.`
+        error: `Bonus [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}] failed. Reached maximum times ${tokenBonusMaxTimes}.`
       })
     }
 
-    let bonusObject = await osseus.db_models.tokenBonus.getStartedByAccount({ accountAddress, tokenAddress, bonusId })
+    let bonusObject = await osseus.db_models.tokenBonus.getStarted({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
 
     const job = await osseus.lib.agenda.now('bonus-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress, originNetwork, bonusType, bonusId })
 
