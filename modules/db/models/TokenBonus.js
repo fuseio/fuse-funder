@@ -9,13 +9,13 @@ module.exports = (osseus) => {
     accountAddress: { type: String, required: true },
     tokenAddress: { type: String, required: true },
     done: { type: Boolean, default: false },
-    bonusStatus: { type: String },
+    bonusStatus: { type: String, enum: ['STARTED', 'SUCCEEDED', 'FAILED'], default: 'STARTED' },
     bonusDate: { type: Date },
     bonusType: { type: String, required: true },
     bonusId: { type: String, required: true}
   }, { timestamps: true })
 
-  TokenBonusSchema.index({ phoneNumber: 1, accountAddress: 1, tokenAddress: 1, bonusType: 1, bonusId: 1 }, { unique: true })
+  TokenBonusSchema.index({ phoneNumber: 1, accountAddress: 1, tokenAddress: 1, bonusType: 1, bonusId: 1 })
   TokenBonusSchema.index({ bonusDate: -1 })
 
   TokenBonusSchema.set('toJSON', {
@@ -31,11 +31,6 @@ module.exports = (osseus) => {
   tokenBonus.finishBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.updateOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'SUCCEEDED', bonusDate: new Date() }})
 
   tokenBonus.failBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.updateOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'FAILED' }})
-
-  tokenBonus.getStarted = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.findOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' })
-
-  tokenBonus.revertBonus = (oldBonus) => TokenBonus.findOneAndUpdate({ phoneNumber: oldBonus.phoneNumber, accountAddress: oldBonus.accountAddress, tokenAddress: oldBonus.tokenAddress, bonusType: oldBonus.bonusType, bonusId: oldBonus.bonusId },
-    { bonusStatus: oldBonus.bonusStatus, bonusDate: oldBonus.bonusDate })
 
   tokenBonus.bonusesCount = ({ phoneNumber, tokenAddress, bonusType }) => TokenBonus.find({ phoneNumber, tokenAddress, bonusType, bonusStatus: {$in: ['STARTED', 'SUCCEEDED']} }).count()
 
