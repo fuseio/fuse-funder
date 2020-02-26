@@ -91,8 +91,10 @@ module.exports = (osseus) => {
 
   /**
    * @api {post} /fund/token Fund account with token
+   * @apiParam {String} phoneNumbber Phone number of bonus receiver
    * @apiParam {String} accountAddress Account address to fund
    * @apiParam {String} tokenAddress Token address of the funding token
+   * @apiParam {Object} originNetwork ropsten/mainnet
    * @apiName FundToken
    * @apiGroup Funding
    *
@@ -101,7 +103,7 @@ module.exports = (osseus) => {
    * @apiSuccess {String} status Current status of the job. Should be "STARTED" if all good.
    */
   const fundToken = async (req, res) => {
-    const { accountAddress, tokenAddress, originNetwork } = req.body
+    const { phoneNumber, accountAddress, tokenAddress, originNetwork } = req.body
     const bonusType = 'plugins.joinBonus.joinInfo'
     const community = await getCommunity({ tokenAddress, originNetwork })
     const tokenBonus = get(community, `${bonusType}.amount`)
@@ -139,9 +141,11 @@ module.exports = (osseus) => {
 
   /**
    * @api {post} /bonus/token Bonus account with token
+   * @apiParam {String} phoneNumber Phone number of bonus receiver
    * @apiParam {String} accountAddress Account address to give bonus
    * @apiParam {String} tokenAddress Token address of the token to give as bonus
    * @apiParam {Object} bonusInfo The reason for the bonus
+   * @apiParam {Object} originNetwork ropsten/mainnet
    * @apiName BonusToken
    * @apiGroup Bonus
    *

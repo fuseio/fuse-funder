@@ -52,9 +52,11 @@ POST /bonus/token
 ### Parameter Parameters
 | Name     | Type       | Description                           |
 |:---------|:-----------|:--------------------------------------|
+| phoneNumber | `String` | <p>Phone number of bonus receiver</p> |
 | accountAddress | `String` | <p>Account address to give bonus</p> |
 | tokenAddress | `String` | <p>Token address of the token to give as bonus</p> |
 | bonusInfo | `Object` | <p>The reason for the bonus</p> |
+| originNetwork | `Object` | <p>ropsten/mainnet</p> |
 
 
 ### Success 200
@@ -135,8 +137,10 @@ POST /fund/token
 ### Parameter Parameters
 | Name     | Type       | Description                           |
 |:---------|:-----------|:--------------------------------------|
+| phoneNumbber | `String` | <p>Phone number of bonus receiver</p> |
 | accountAddress | `String` | <p>Account address to fund</p> |
 | tokenAddress | `String` | <p>Token address of the funding token</p> |
+| originNetwork | `Object` | <p>ropsten/mainnet</p> |
 
 
 ### Success 200

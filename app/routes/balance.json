@@ -4,6 +4,10 @@
       "route": "fundToken",
       "validators": {
         "body": {
+          "phoneNumber": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
+          },
           "accountAddress": {
             "notEmpty": true,
             "errorMessage": "is missing"
@@ -63,6 +67,10 @@
       "route": "bonusToken",
       "validators": {
         "body": {
+          "phoneNumber": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
+          },
           "accountAddress": {
             "notEmpty": true,
             "errorMessage": "is missing"
