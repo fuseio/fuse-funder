@@ -94,6 +94,10 @@ module.exports = (osseus) => {
     })
   }
 
+  const isTeam = (phoneNumber) => {
+    return osseus.config.team_phone_numbers ? osseus.config.team_phone_numbers.split(',').includes(phoneNumber) : false
+  }
+
   /**
    * @api {post} /fund/token Fund account with token
    * @apiParam {String} phoneNumbber Phone number of bonus receiver
@@ -119,19 +123,21 @@ module.exports = (osseus) => {
       })
     }
 
-    const tokenFundingMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
-    const fundingsCount = await osseus.db_models.tokenFunding.fundingsCount({ phoneNumber, tokenAddress })
-    if (fundingsCount >= tokenFundingMaxTimes) {
-      return res.status(403).send({
-        error: `Join bonus reached maximum times ${tokenFundingMaxTimes}. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
-      })
-    }
+    if (!isTeam(phoneNumber)) {
+      const tokenFundingMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
+      const fundingsCount = await osseus.db_models.tokenFunding.fundingsCount({ phoneNumber, tokenAddress })
+      if (fundingsCount >= tokenFundingMaxTimes) {
+        return res.status(403).send({
+          error: `Join bonus reached maximum times ${tokenFundingMaxTimes}. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
+        })
+      }
 
-    const fundingsCountDaily = await osseus.db_models.tokenFunding.fundingsPerDay(new Date())
-    if (fundingsCountDaily > osseus.config.ethereum_fundings_cap_per_day) {
-      return res.status(403).send({
-        error: `Join bonus reached maximum capacity per day. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
-      })
+      const fundingsCountDaily = await osseus.db_models.tokenFunding.fundingsPerDay(new Date())
+      if (fundingsCountDaily > osseus.config.ethereum_fundings_cap_per_day) {
+        return res.status(403).send({
+          error: `Join bonus reached maximum capacity per day. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
+        })
+      }
     }
 
     await osseus.db_models.tokenFunding.startFunding({ phoneNumber, accountAddress, tokenAddress })
@@ -167,20 +173,22 @@ module.exports = (osseus) => {
       })
     }
 
-    const tokenBonusMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
-    const bonusesCount = await osseus.db_models.tokenBonus.bonusesCount({ phoneNumber, tokenAddress, bonusType })
-    if (bonusesCount >= tokenBonusMaxTimes) {
-      return res.status(403).send({
-        error: `Bonus reached maximum times ${tokenBonusMaxTimes}. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
-      })
-    }
-
-    if (bonusType.includes('invite')) {
-      const bonusesCountForId = await osseus.db_models.tokenBonus.bonusesCountForId({ phoneNumber, tokenAddress, bonusType, bonusId })
-      if (bonusesCountForId > 0) {
+    if (!isTeam(phoneNumber)) {
+      const tokenBonusMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
+      const bonusesCount = await osseus.db_models.tokenBonus.bonusesCount({ phoneNumber, tokenAddress, bonusType })
+      if (bonusesCount >= tokenBonusMaxTimes) {
         return res.status(403).send({
-          error: `Invite bonus already received. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
+          error: `Bonus reached maximum times ${tokenBonusMaxTimes}. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
         })
+      }
+
+      if (bonusType.includes('invite')) {
+        const bonusesCountForId = await osseus.db_models.tokenBonus.bonusesCountForId({ phoneNumber, tokenAddress, bonusType, bonusId })
+        if (bonusesCountForId > 0) {
+          return res.status(403).send({
+            error: `Invite bonus already received. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
+          })
+        }
       }
     }
 
