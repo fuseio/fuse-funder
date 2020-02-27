@@ -38,14 +38,19 @@ module.exports = (osseus) => {
   }
 
   const getCommunity = async ({ tokenAddress, originNetwork }) => {
-    const urlComponents = osseus.config.fuse_studio_api_base.split('.')
-    if (originNetwork === 'ropsten') {
-      urlComponents[0] = `${urlComponents[0]}-ropsten`
+    try {
+      const urlComponents = osseus.config.fuse_studio_api_base.split('.')
+      if (originNetwork === 'ropsten') {
+        urlComponents[0] = `${urlComponents[0]}-ropsten`
+      }
+      const baseURL = urlComponents.join('.')
+      const response = await request.get(`${baseURL}/communities?homeTokenAddress=${tokenAddress}`)
+      const community = get(JSON.parse(response), 'data')
+      return community
+    } catch (err) {
+      console.error(err)
+      return {}
     }
-    const baseURL = urlComponents.join('.')
-    const response = await request.get(`${baseURL}/communities?homeTokenAddress=${tokenAddress}`)
-    const community = get(JSON.parse(response), 'data')
-    return community
   }
 
   /**
@@ -91,8 +96,10 @@ module.exports = (osseus) => {
 
   /**
    * @api {post} /fund/token Fund account with token
+   * @apiParam {String} phoneNumbber Phone number of bonus receiver
    * @apiParam {String} accountAddress Account address to fund
    * @apiParam {String} tokenAddress Token address of the funding token
+   * @apiParam {Object} originNetwork ropsten/mainnet
    * @apiName FundToken
    * @apiGroup Funding
    *
@@ -101,47 +108,46 @@ module.exports = (osseus) => {
    * @apiSuccess {String} status Current status of the job. Should be "STARTED" if all good.
    */
   const fundToken = async (req, res) => {
-    const { accountAddress, tokenAddress, originNetwork } = req.body
+    const { phoneNumber, accountAddress, tokenAddress, originNetwork } = req.body
     const bonusType = 'plugins.joinBonus.joinInfo'
     const community = await getCommunity({ tokenAddress, originNetwork })
-    const tokenBonus = get(community, `${bonusType}.amount`)
+    const tokenFunding = get(community, `${bonusType}.amount`)
 
-    if (!tokenBonus) {
+    if (!tokenFunding) {
       return res.status(403).send({
         error: `No join bonus defined for token ${tokenAddress}.`
       })
     }
 
-    const oldFunding = await osseus.db_models.tokenFunding.startFunding({ accountAddress, tokenAddress })
-
-    if (oldFunding && oldFunding.fundingStatus !== 'FAILED') {
-      await osseus.db_models.tokenFunding.revertFunding(oldFunding)
+    const tokenFundingMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
+    const fundingsCount = await osseus.db_models.tokenFunding.fundingsCount({ phoneNumber, tokenAddress })
+    if (fundingsCount >= tokenFundingMaxTimes) {
       return res.status(403).send({
-        error: `Account ${accountAddress} already received funding.`
+        error: `Join bonus reached maximum times ${tokenFundingMaxTimes}. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
       })
     }
 
-    const fundingsCount = await osseus.db_models.tokenFunding.fundingsPerDay(new Date())
-
-    if (fundingsCount > osseus.config.ethereum_fundings_cap_per_day) {
-      await osseus.db_models.tokenFunding.failFunding({ accountAddress, tokenAddress })
+    const fundingsCountDaily = await osseus.db_models.tokenFunding.fundingsPerDay(new Date())
+    if (fundingsCountDaily > osseus.config.ethereum_fundings_cap_per_day) {
       return res.status(403).send({
-        error: `Funding of ${accountAddress} failed. Reached maximum capacity per day.`
+        error: `Join bonus reached maximum capacity per day. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
       })
     }
 
-    let fundingObject = await osseus.db_models.tokenFunding.getStartedByAccount({ accountAddress, tokenAddress })
+    await osseus.db_models.tokenFunding.startFunding({ phoneNumber, accountAddress, tokenAddress })
 
-    const job = await osseus.lib.agenda.now('fund-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress, originNetwork, bonusType })
+    const job = await osseus.lib.agenda.now('fund-token', { phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType })
 
     res.send({ job: job.attrs })
   }
 
   /**
    * @api {post} /bonus/token Bonus account with token
+   * @apiParam {String} phoneNumber Phone number of bonus receiver
    * @apiParam {String} accountAddress Account address to give bonus
    * @apiParam {String} tokenAddress Token address of the token to give as bonus
    * @apiParam {Object} bonusInfo The reason for the bonus
+   * @apiParam {Object} originNetwork ropsten/mainnet
    * @apiName BonusToken
    * @apiGroup Bonus
    *
@@ -150,7 +156,7 @@ module.exports = (osseus) => {
    * @apiSuccess {String} status Current status of the job. Should be "STARTED" if all good.
    */
   const bonusToken = async (req, res) => {
-    const { accountAddress, tokenAddress, bonusInfo, originNetwork } = req.body
+    const { phoneNumber, accountAddress, tokenAddress, bonusInfo, originNetwork } = req.body
     const { bonusType, bonusId } = bonusInfo
     const community = await getCommunity({ tokenAddress, originNetwork })
     const tokenBonus = get(community, `${bonusType}.amount`)
@@ -161,29 +167,26 @@ module.exports = (osseus) => {
       })
     }
 
-    const oldBonus = await osseus.db_models.tokenBonus.startBonus({ accountAddress, tokenAddress, bonusId })
-
-    if (oldBonus && oldBonus.bonusStatus !== 'FAILED') {
-      await osseus.db_models.tokenBonus.revertBonus(oldBonus)
-      return res.status(403).send({
-        error: `Account ${accountAddress} already received bonus for bonusId: ${bonusId}.`
-      })
-    }
-
     const tokenBonusMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
-
-    const bonusesCount = await osseus.db_models.tokenBonus.bonusesPerAccount({ accountAddress, tokenAddress })
-
-    if (bonusesCount > tokenBonusMaxTimes) {
-      await osseus.db_models.tokenBonus.failBonus({ accountAddress, tokenAddress, bonusId })
+    const bonusesCount = await osseus.db_models.tokenBonus.bonusesCount({ phoneNumber, tokenAddress, bonusType })
+    if (bonusesCount >= tokenBonusMaxTimes) {
       return res.status(403).send({
-        error: `Bonus of ${accountAddress} for bonusId: ${bonusId} failed. Reached maximum times ${tokenBonusMaxTimes}.`
+        error: `Bonus reached maximum times ${tokenBonusMaxTimes}. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
       })
     }
 
-    let bonusObject = await osseus.db_models.tokenBonus.getStartedByAccount({ accountAddress, tokenAddress, bonusId })
+    if (bonusType.includes('invite')) {
+      const bonusesCountForId = await osseus.db_models.tokenBonus.bonusesCountForId({ phoneNumber, tokenAddress, bonusType, bonusId })
+      if (bonusesCountForId > 0) {
+        return res.status(403).send({
+          error: `Invite bonus already received. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
+        })
+      }
+    }
 
-    const job = await osseus.lib.agenda.now('bonus-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress, originNetwork, bonusType, bonusId })
+    await osseus.db_models.tokenBonus.startBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
+
+    const job = await osseus.lib.agenda.now('bonus-token', { phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
 
     res.send({ job: job.attrs })
   }

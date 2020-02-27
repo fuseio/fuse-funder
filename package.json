@@ -8,7 +8,9 @@
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "doc": "apidoc -i app -o docs/api && apidoc-markdown -p docs/api -o docs/api.md",
-    "ganache": "ganache-cli -m talisman"
+    "ganache": "ganache-cli -m talisman",
+    "lint": "standard",
+    "lint-fix": "standard --fix"
   },
   "repository": {
     "type": "git",

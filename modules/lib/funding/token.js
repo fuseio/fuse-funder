@@ -4,7 +4,7 @@ const { get } = require('lodash')
 module.exports = (osseus, agenda) => {
   const getTokenBonus = async ({ tokenAddress, originNetwork, bonusType }) => {
     const urlComponents = osseus.config.fuse_studio_api_base.split('.')
-    if (originNetwork == 'ropsten') {
+    if (originNetwork === 'ropsten') {
       urlComponents[0] = `${urlComponents[0]}-ropsten`
     }
     const baseURL = urlComponents.join('.')
@@ -18,7 +18,7 @@ module.exports = (osseus, agenda) => {
     return transactionCount
   }
 
-  const fundToken = async ({ accountAddress, tokenAddress, originNetwork, bonusType }) => {
+  const fundToken = async ({ phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType }) => {
     try {
       const web3 = osseus.lib.web3.default
       const fundingAccountAddress = osseus.config.ethereum_admin_account
@@ -32,19 +32,22 @@ module.exports = (osseus, agenda) => {
         gasPrice: osseus.config.ethereum_gas_price,
         nonce: fundingAccountNonce
       })
-      await osseus.db_models.tokenFunding.finishFunding({ accountAddress, tokenAddress })
+      await osseus.db_models.tokenFunding.finishFunding({ phoneNumber, accountAddress, tokenAddress })
       return tx
     } catch (error) {
-      await osseus.db_models.tokenFunding.failFunding({ accountAddress, tokenAddress })
+      await osseus.db_models.tokenFunding.failFunding({ phoneNumber, accountAddress, tokenAddress })
       throw error
     }
   }
 
-  agenda.define('fund-token', {concurrency: 1}, async (job, done) => {
+  agenda.define('fund-token', { concurrency: 1 }, async (job, done) => {
     if (!job || !job.attrs || !job.attrs.data) {
       return done(new Error(`Job data undefined`))
     }
-    let { accountAddress, tokenAddress, originNetwork, bonusType } = job.attrs.data
+    let { phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType } = job.attrs.data
+    if (!phoneNumber) {
+      return done(new Error(`Job data is missing "phoneNumber"`))
+    }
     if (!accountAddress) {
       return done(new Error(`Job data is missing "accountAddress"`))
     }
@@ -59,7 +62,7 @@ module.exports = (osseus, agenda) => {
     }
 
     try {
-      let tx = await fundToken({ accountAddress, tokenAddress, originNetwork, bonusType })
+      let tx = await fundToken({ phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType })
 
       job.attrs.data.txHash = tx.transactionHash
       job.attrs.data.status = 'SUCCEEDED'
@@ -74,7 +77,7 @@ module.exports = (osseus, agenda) => {
     }
   })
 
-  const bonusToken = async ({ accountAddress, tokenAddress, originNetwork, bonusType, bonusId }) => {
+  const bonusToken = async ({ phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType, bonusId }) => {
     try {
       const web3 = osseus.lib.web3.default
       const fundingAccountAddress = osseus.config.ethereum_admin_account
@@ -88,19 +91,22 @@ module.exports = (osseus, agenda) => {
         gasPrice: osseus.config.ethereum_gas_price,
         nonce: fundingAccountNonce
       })
-      await osseus.db_models.tokenBonus.finishBonus({ accountAddress, tokenAddress, bonusId })
+      await osseus.db_models.tokenBonus.finishBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
       return tx
     } catch (error) {
-      await osseus.db_models.tokenBonus.failBonus({ accountAddress, tokenAddress, bonusId })
+      await osseus.db_models.tokenBonus.failBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
       throw error
     }
   }
 
-  agenda.define('bonus-token', {concurrency: 1}, async (job, done) => {
+  agenda.define('bonus-token', { concurrency: 1 }, async (job, done) => {
     if (!job || !job.attrs || !job.attrs.data) {
       return done(new Error(`Job data undefined`))
     }
-    let { accountAddress, tokenAddress, originNetwork, bonusType, bonusId } = job.attrs.data
+    let { phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType, bonusId } = job.attrs.data
+    if (!phoneNumber) {
+      return done(new Error(`Job data is missing "phoneNumber"`))
+    }
     if (!accountAddress) {
       return done(new Error(`Job data is missing "accountAddress"`))
     }
@@ -118,7 +124,7 @@ module.exports = (osseus, agenda) => {
     }
 
     try {
-      let tx = await bonusToken({ accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
+      let tx = await bonusToken({ phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
 
       job.attrs.data.txHash = tx.transactionHash
       job.attrs.data.status = 'SUCCEEDED'
