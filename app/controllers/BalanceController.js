@@ -38,14 +38,19 @@ module.exports = (osseus) => {
   }
 
   const getCommunity = async ({ tokenAddress, originNetwork }) => {
-    const urlComponents = osseus.config.fuse_studio_api_base.split('.')
-    if (originNetwork === 'ropsten') {
-      urlComponents[0] = `${urlComponents[0]}-ropsten`
+    try {
+      const urlComponents = osseus.config.fuse_studio_api_base.split('.')
+      if (originNetwork === 'ropsten') {
+        urlComponents[0] = `${urlComponents[0]}-ropsten`
+      }
+      const baseURL = urlComponents.join('.')
+      const response = await request.get(`${baseURL}/communities?homeTokenAddress=${tokenAddress}`)
+      const community = get(JSON.parse(response), 'data')
+      return community
+    } catch (err) {
+      console.error(err)
+      return {}
     }
-    const baseURL = urlComponents.join('.')
-    const response = await request.get(`${baseURL}/communities?homeTokenAddress=${tokenAddress}`)
-    const community = get(JSON.parse(response), 'data')
-    return community
   }
 
   /**
@@ -123,7 +128,6 @@ module.exports = (osseus) => {
     }
 
     const fundingsCountDaily = await osseus.db_models.tokenFunding.fundingsPerDay(new Date())
-
     if (fundingsCountDaily > osseus.config.ethereum_fundings_cap_per_day) {
       return res.status(403).send({
         error: `Join bonus reached maximum capacity per day. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`

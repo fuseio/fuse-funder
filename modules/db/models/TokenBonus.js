@@ -23,7 +23,7 @@ module.exports = (osseus) => {
 
   function tokenBonus () {}
 
-  tokenBonus.startBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.findOneAndUpdate({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }, { bonusStatus: 'STARTED', bonusDate: new Date() }, { upsert: true })
+  tokenBonus.startBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => new TokenBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED', bonusDate: new Date() }).save()
 
   tokenBonus.finishBonus = ({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.updateOne({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'SUCCEEDED', bonusDate: new Date() } })
 

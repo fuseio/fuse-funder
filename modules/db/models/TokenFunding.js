@@ -23,7 +23,7 @@ module.exports = (osseus) => {
 
   function tokenFunding () {}
 
-  tokenFunding.startFunding = ({ phoneNumber, accountAddress, tokenAddress }) => TokenFunding.findOneAndUpdate({ phoneNumber, accountAddress, tokenAddress }, { fundingStatus: 'STARTED', fundingDate: new Date() }, { upsert: true })
+  tokenFunding.startFunding = ({ phoneNumber, accountAddress, tokenAddress }) => new TokenFunding({ phoneNumber, accountAddress, tokenAddress, fundingStatus: 'STARTED', fundingDate: new Date() }).save()
 
   tokenFunding.finishFunding = ({ phoneNumber, accountAddress, tokenAddress }) => TokenFunding.updateOne({ phoneNumber, accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'SUCCEEDED', fundingDate: new Date() } })
 
