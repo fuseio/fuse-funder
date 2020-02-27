@@ -6,7 +6,6 @@ module.exports = (osseus) => {
     phoneNumber: { type: String, required: true },
     accountAddress: { type: String, required: true },
     tokenAddress: { type: String, required: true },
-    done: { type: Boolean, default: false },
     bonusStatus: { type: String, enum: ['STARTED', 'SUCCEEDED', 'FAILED'], default: 'STARTED' },
     bonusDate: { type: Date },
     bonusType: { type: String, required: true },

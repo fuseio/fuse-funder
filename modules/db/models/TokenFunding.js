@@ -5,14 +5,14 @@ module.exports = (osseus) => {
   const { Schema, Types } = mongo.mongoose
 
   const TokenFundingSchema = new Schema({
+    phoneNumber: { type: String, required: true },
     accountAddress: { type: String, required: true },
     tokenAddress: { type: String, required: true },
-    funded: { type: Boolean, default: false },
-    fundingStatus: { type: String },
+    fundingStatus: { type: String, enum: ['STARTED', 'SUCCEEDED', 'FAILED'], default: 'STARTED' },
     fundingDate: { type: Date }
   }, { timestamps: true })
 
-  TokenFundingSchema.index({ accountAddress: 1, tokenAddress: 1 }, { unique: true })
+  TokenFundingSchema.index({ phoneNumber: 1, accountAddress: 1, tokenAddress: 1 })
   TokenFundingSchema.index({ fundingDate: -1 })
 
   TokenFundingSchema.set('toJSON', {
@@ -23,35 +23,22 @@ module.exports = (osseus) => {
 
   function tokenFunding () {}
 
-  tokenFunding.startFunding = ({ accountAddress, tokenAddress }) => TokenFunding.findOneAndUpdate({ accountAddress, tokenAddress }, { fundingStatus: 'STARTED', fundingDate: new Date() }, { upsert: true })
+  tokenFunding.startFunding = ({ phoneNumber, accountAddress, tokenAddress }) => TokenFunding.findOneAndUpdate({ phoneNumber, accountAddress, tokenAddress }, { fundingStatus: 'STARTED', fundingDate: new Date() }, { upsert: true })
 
-  tokenFunding.finishFunding = ({ accountAddress, tokenAddress }) => TokenFunding.updateOne({ accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'SUCCEEDED', fundingDate: new Date() } })
+  tokenFunding.finishFunding = ({ phoneNumber, accountAddress, tokenAddress }) => TokenFunding.updateOne({ phoneNumber, accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'SUCCEEDED', fundingDate: new Date() } })
 
-  tokenFunding.failFunding = ({ accountAddress, tokenAddress }) => TokenFunding.updateOne({ accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'FAILED' } })
+  tokenFunding.failFunding = ({ phoneNumber, accountAddress, tokenAddress }) => TokenFunding.updateOne({ phoneNumber, accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'FAILED' } })
 
-  tokenFunding.isFunded = ({ accountAddress, tokenAddress }) => TokenFunding.findOne({ accountAddress, tokenAddress, fundingStatus: { $exists: true } })
+  tokenFunding.fundingsCount = ({ phoneNumber, tokenAddress }) => TokenFunding.find({ phoneNumber, tokenAddress, fundingStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
 
-  tokenFunding.getStartedByAccount = ({ accountAddress, tokenAddress }) => TokenFunding.findOne({ accountAddress, tokenAddress, fundingStatus: 'STARTED' })
-
-  tokenFunding.revertFunding = (oldFunding) => TokenFunding.findOneAndUpdate({ accountAddress: oldFunding.accountAddress, tokenAddress: oldFunding.tokenAddress },
-    { fundingStatus: oldFunding.fundingStatus, fundingDate: oldFunding.fundingDate })
+  tokenFunding.getById = (id) => TokenFunding.findOne({ _id: Types.ObjectId(id) })
 
   tokenFunding.fundingsPerDay = (date) => {
     var startOfDay = moment(date).startOf('day')
     var endOfDay = moment(date).endOf('day')
 
-    return TokenFunding.find({
-      fundingDate: {
-        $gte: startOfDay,
-        $lte: endOfDay
-      },
-      fundingStatus: {
-        $in: ['STARTED', 'SUCCEEDED']
-      }
-    }).count()
+    return TokenFunding.find({ fundingDate: { $gte: startOfDay, $lte: endOfDay }, fundingStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
   }
-
-  tokenFunding.getById = (id) => TokenFunding.findOne({ _id: Types.ObjectId(id) })
 
   return tokenFunding
 }

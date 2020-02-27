@@ -106,35 +106,33 @@ module.exports = (osseus) => {
     const { phoneNumber, accountAddress, tokenAddress, originNetwork } = req.body
     const bonusType = 'plugins.joinBonus.joinInfo'
     const community = await getCommunity({ tokenAddress, originNetwork })
-    const tokenBonus = get(community, `${bonusType}.amount`)
+    const tokenFunding = get(community, `${bonusType}.amount`)
 
-    if (!tokenBonus) {
+    if (!tokenFunding) {
       return res.status(403).send({
         error: `No join bonus defined for token ${tokenAddress}.`
       })
     }
 
-    const oldFunding = await osseus.db_models.tokenFunding.startFunding({ accountAddress, tokenAddress })
-
-    if (oldFunding && oldFunding.fundingStatus !== 'FAILED') {
-      await osseus.db_models.tokenFunding.revertFunding(oldFunding)
+    const tokenFundingMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
+    const fundingsCount = await osseus.db_models.tokenFunding.fundingsCount({ phoneNumber, tokenAddress })
+    if (fundingsCount >= tokenFundingMaxTimes) {
       return res.status(403).send({
-        error: `Account ${accountAddress} already received funding.`
+        error: `Join bonus reached maximum times ${tokenFundingMaxTimes}. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
       })
     }
 
-    const fundingsCount = await osseus.db_models.tokenFunding.fundingsPerDay(new Date())
+    const fundingsCountDaily = await osseus.db_models.tokenFunding.fundingsPerDay(new Date())
 
-    if (fundingsCount > osseus.config.ethereum_fundings_cap_per_day) {
-      await osseus.db_models.tokenFunding.failFunding({ accountAddress, tokenAddress })
+    if (fundingsCountDaily > osseus.config.ethereum_fundings_cap_per_day) {
       return res.status(403).send({
-        error: `Funding of ${accountAddress} failed. Reached maximum capacity per day.`
+        error: `Join bonus reached maximum capacity per day. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
       })
     }
 
-    let fundingObject = await osseus.db_models.tokenFunding.getStartedByAccount({ accountAddress, tokenAddress })
+    await osseus.db_models.tokenFunding.startFunding({ phoneNumber, accountAddress, tokenAddress })
 
-    const job = await osseus.lib.agenda.now('fund-token', { accountAddress: accountAddress, tokenAddress:  tokenAddress, originNetwork, bonusType })
+    const job = await osseus.lib.agenda.now('fund-token', { phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType })
 
     res.send({ job: job.attrs })
   }
@@ -175,7 +173,7 @@ module.exports = (osseus) => {
 
     await osseus.db_models.tokenBonus.startBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
 
-    const job = await osseus.lib.agenda.now('bonus-token', { accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
+    const job = await osseus.lib.agenda.now('bonus-token', { phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
 
     res.send({ job: job.attrs })
   }
