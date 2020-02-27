@@ -31,6 +31,8 @@ module.exports = (osseus) => {
 
   tokenBonus.bonusesCount = ({ phoneNumber, tokenAddress, bonusType }) => TokenBonus.find({ phoneNumber, tokenAddress, bonusType, bonusStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
 
+  tokenBonus.bonusesCountForId = ({ phoneNumber, tokenAddress, bonusType, bonusId }) => TokenBonus.find({ phoneNumber, tokenAddress, bonusType, bonusId, bonusStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
+
   tokenBonus.getById = (id) => TokenBonus.findOne({ _id: Types.ObjectId(id) })
 
   return tokenBonus

@@ -175,6 +175,15 @@ module.exports = (osseus) => {
       })
     }
 
+    if (bonusType.includes('invite')) {
+      const bonusesCountForId = await osseus.db_models.tokenBonus.bonusesCountForId({ phoneNumber, tokenAddress, bonusType, bonusId })
+      if (bonusesCountForId > 0) {
+        return res.status(403).send({
+          error: `Invite bonus already received. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
+        })
+      }
+    }
+
     await osseus.db_models.tokenBonus.startBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
 
     const job = await osseus.lib.agenda.now('bonus-token', { phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
