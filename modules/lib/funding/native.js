@@ -1,12 +1,15 @@
 const request = require('request-promise-native')
 const { get } = require('lodash')
+const { getBaseUrl } = require('../utils')
 
 module.exports = (osseus, agenda) => {
   const getNativeBonus = async ({ accountAddress, tokenAddress, networkType = 'ropsten' }) => {
     if (!tokenAddress) {
       return osseus.config.ethereum_native_user_bonus
     }
-    const response = await request.get(`${osseus.config.fuse_studio_api_base}/tokens/${tokenAddress}`)
+
+    const baseUrl = getBaseUrl(osseus, networkType)
+    const response = await request.get(`${baseUrl}/tokens/${tokenAddress}`)
     const owner = get(JSON.parse(response), 'data.owner')
     const isAdmin = owner === accountAddress
     if (isAdmin) {
