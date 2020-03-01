@@ -1,13 +1,10 @@
 const request = require('request-promise-native')
 const { get } = require('lodash')
+const { getBaseUrl } = require('../utils')
 
 module.exports = (osseus, agenda) => {
   const getTokenBonus = async ({ tokenAddress, originNetwork, bonusType }) => {
-    const urlComponents = osseus.config.fuse_studio_api_base.split('.')
-    if (originNetwork === 'ropsten') {
-      urlComponents[0] = `${urlComponents[0]}-ropsten`
-    }
-    const baseURL = urlComponents.join('.')
+    const baseURL = getBaseUrl(osseus, originNetwork)
     const response = await request.get(`${baseURL}/communities?homeTokenAddress=${tokenAddress}`)
     const community = get(JSON.parse(response), 'data')
     return get(community, `${bonusType}.amount`)
