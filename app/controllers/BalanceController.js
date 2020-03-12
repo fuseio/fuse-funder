@@ -125,11 +125,20 @@ module.exports = (osseus) => {
 
     if (!isTeam(phoneNumber)) {
       const tokenFundingMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
-      const fundingsCount = await osseus.db_models.tokenFunding.fundingsCount({ phoneNumber, identifier, tokenAddress })
-      if (fundingsCount >= tokenFundingMaxTimes) {
+      const fundingsCountForPhoneNumber = await osseus.db_models.tokenFunding.fundingsCountForPhoneNumber({ phoneNumber, tokenAddress })
+      if (fundingsCountForPhoneNumber >= tokenFundingMaxTimes) {
         return res.status(403).send({
-          error: `Join bonus reached maximum times ${tokenFundingMaxTimes}. [phoneNumber: ${phoneNumber}, identifier: ${identifier}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
+          error: `Join bonus reached maximum times ${tokenFundingMaxTimes}. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
         })
+      }
+
+      if (identifier) {
+        const fundingsCountForIdentifier = await osseus.db_models.tokenFunding.fundingsCountForIdentifier({ identifier, tokenAddress })
+        if (fundingsCountForIdentifier >= tokenFundingMaxTimes) {
+          return res.status(403).send({
+            error: `Join bonus reached maximum times ${tokenFundingMaxTimes}. [identifier: ${identifier}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
+          })
+        }
       }
 
       const fundingsCountDaily = await osseus.db_models.tokenFunding.fundingsPerDay(new Date())
@@ -175,11 +184,20 @@ module.exports = (osseus) => {
 
     if (!isTeam(phoneNumber)) {
       const tokenBonusMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
-      const bonusesCount = await osseus.db_models.tokenBonus.bonusesCount({ phoneNumber, identifier, tokenAddress, bonusType })
-      if (bonusesCount >= tokenBonusMaxTimes) {
+      const bonusesCountForPhoneNumber = await osseus.db_models.tokenBonus.bonusesCountForPhoneNumber({ phoneNumber, tokenAddress, bonusType })
+      if (bonusesCountForPhoneNumber >= tokenBonusMaxTimes) {
         return res.status(403).send({
-          error: `Bonus reached maximum times ${tokenBonusMaxTimes}. [phoneNumber: ${phoneNumber}, identifier: ${identifier}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
+          error: `Bonus reached maximum times ${tokenBonusMaxTimes}. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
         })
+      }
+
+      if (identifier) {
+        const bonusesCountForIdentifier = await osseus.db_models.tokenBonus.bonusesCountForIdentifier({ identifier, tokenAddress, bonusType })
+        if (bonusesCountForIdentifier >= tokenBonusMaxTimes) {
+          return res.status(403).send({
+            error: `Bonus reached maximum times ${tokenBonusMaxTimes}. [identifier: ${identifier}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
+          })
+        }
       }
 
       if (bonusType.includes('invite')) {

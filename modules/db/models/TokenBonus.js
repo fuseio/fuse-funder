@@ -30,7 +30,9 @@ module.exports = (osseus) => {
 
   tokenBonus.failBonus = ({ phoneNumber, identifier, accountAddress, tokenAddress, bonusType, bonusId }) => TokenBonus.updateOne({ phoneNumber, identifier, accountAddress, tokenAddress, bonusType, bonusId, bonusStatus: 'STARTED' }, { $set: { bonusStatus: 'FAILED' } })
 
-  tokenBonus.bonusesCount = ({ phoneNumber, identifier, tokenAddress, bonusType }) => TokenBonus.find({ phoneNumber, identifier, tokenAddress, bonusType, bonusStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
+  tokenBonus.bonusesCountForPhoneNumber = ({ phoneNumber, tokenAddress, bonusType }) => TokenBonus.find({ phoneNumber, tokenAddress, bonusType, bonusStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
+
+  tokenBonus.bonusesCountForIdentifier = ({ identifier, tokenAddress, bonusType }) => TokenBonus.find({ identifier, tokenAddress, bonusType, bonusStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
 
   tokenBonus.bonusesCountForId = ({ phoneNumber, identifier, tokenAddress, bonusType, bonusId }) => TokenBonus.find({ phoneNumber, identifier, tokenAddress, bonusType, bonusId, bonusStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
 

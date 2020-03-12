@@ -30,7 +30,9 @@ module.exports = (osseus) => {
 
   tokenFunding.failFunding = ({ phoneNumber, identifier, accountAddress, tokenAddress }) => TokenFunding.updateOne({ phoneNumber, identifier, accountAddress, tokenAddress, fundingStatus: 'STARTED' }, { $set: { fundingStatus: 'FAILED' } })
 
-  tokenFunding.fundingsCount = ({ phoneNumber, identifier, tokenAddress }) => TokenFunding.find({ phoneNumber, identifier, tokenAddress, fundingStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
+  tokenFunding.fundingsCountForPhoneNumber = ({ phoneNumber, tokenAddress }) => TokenFunding.find({ phoneNumber, tokenAddress, fundingStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
+
+  tokenFunding.fundingsCountForIdentifier = ({ identifier, tokenAddress }) => TokenFunding.find({ identifier, tokenAddress, fundingStatus: { $in: ['STARTED', 'SUCCEEDED'] } }).count()
 
   tokenFunding.getById = (id) => TokenFunding.findOne({ _id: Types.ObjectId(id) })
 
