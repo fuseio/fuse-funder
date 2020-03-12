@@ -194,7 +194,7 @@ module.exports = (osseus) => {
 
     await osseus.db_models.tokenBonus.startBonus({ phoneNumber, identifier, accountAddress, tokenAddress, bonusType, bonusId })
 
-    const job = await osseus.lib.agenda.now('bonus-token', { phoneNumber, identifier accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
+    const job = await osseus.lib.agenda.now('bonus-token', { phoneNumber, identifier, accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
 
     res.send({ job: job.attrs })
   }
