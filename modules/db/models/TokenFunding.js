@@ -7,7 +7,7 @@ module.exports = (osseus) => {
   const TokenFundingSchema = new Schema({
     phoneNumber: { type: String, required: true },
     accountAddress: { type: String, required: true },
-    identifier: { type: String, required: true },
+    identifier: { type: String },
     tokenAddress: { type: String, required: true },
     fundingStatus: { type: String, enum: ['STARTED', 'SUCCEEDED', 'FAILED'], default: 'STARTED' },
     fundingDate: { type: Date }

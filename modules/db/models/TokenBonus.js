@@ -5,7 +5,7 @@ module.exports = (osseus) => {
   const TokenBonusSchema = new Schema({
     phoneNumber: { type: String, required: true },
     accountAddress: { type: String, required: true },
-    identifier: { type: String, required: true },
+    identifier: { type: String },
     tokenAddress: { type: String, required: true },
     bonusStatus: { type: String, enum: ['STARTED', 'SUCCEEDED', 'FAILED'], default: 'STARTED' },
     bonusDate: { type: Date },
