@@ -45,9 +45,6 @@ module.exports = (osseus, agenda) => {
     if (!phoneNumber) {
       return done(new Error(`Job data is missing "phoneNumber"`))
     }
-    if (!identifier) {
-      return done(new Error(`Job data is missing "identifier"`))
-    }
     if (!accountAddress) {
       return done(new Error(`Job data is missing "accountAddress"`))
     }
@@ -101,9 +98,6 @@ module.exports = (osseus, agenda) => {
     let { phoneNumber, accountAddress, identifier, tokenAddress, originNetwork, bonusType, bonusId } = job.attrs.data
     if (!phoneNumber) {
       return done(new Error(`Job data is missing "phoneNumber"`))
-    }
-    if (!identifier) {
-      return done(new Error(`Job data is missing "identifier"`))
     }
     if (!accountAddress) {
       return done(new Error(`Job data is missing "accountAddress"`))
