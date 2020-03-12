@@ -15,7 +15,7 @@ module.exports = (osseus, agenda) => {
     return transactionCount
   }
 
-  const fundToken = async ({ phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType }) => {
+  const fundToken = async ({ phoneNumber, identifier, accountAddress, tokenAddress, originNetwork, bonusType }) => {
     try {
       const web3 = osseus.lib.web3.default
       const fundingAccountAddress = osseus.config.ethereum_admin_account
@@ -29,10 +29,10 @@ module.exports = (osseus, agenda) => {
         gasPrice: osseus.config.ethereum_gas_price,
         nonce: fundingAccountNonce
       })
-      await osseus.db_models.tokenFunding.finishFunding({ phoneNumber, accountAddress, tokenAddress })
+      await osseus.db_models.tokenFunding.finishFunding({ phoneNumber, identifier, accountAddress, tokenAddress })
       return tx
     } catch (error) {
-      await osseus.db_models.tokenFunding.failFunding({ phoneNumber, accountAddress, tokenAddress })
+      await osseus.db_models.tokenFunding.failFunding({ phoneNumber, identifier, accountAddress, tokenAddress })
       throw error
     }
   }
@@ -41,9 +41,12 @@ module.exports = (osseus, agenda) => {
     if (!job || !job.attrs || !job.attrs.data) {
       return done(new Error(`Job data undefined`))
     }
-    let { phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType } = job.attrs.data
+    let { phoneNumber, accountAddress, identifier, tokenAddress, originNetwork, bonusType } = job.attrs.data
     if (!phoneNumber) {
       return done(new Error(`Job data is missing "phoneNumber"`))
+    }
+    if (!identifier) {
+      return done(new Error(`Job data is missing "identifier"`))
     }
     if (!accountAddress) {
       return done(new Error(`Job data is missing "accountAddress"`))
@@ -59,7 +62,7 @@ module.exports = (osseus, agenda) => {
     }
 
     try {
-      let tx = await fundToken({ phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType })
+      let tx = await fundToken({ phoneNumber, identifier, accountAddress, tokenAddress, originNetwork, bonusType })
       job.attrs.data.txHash = tx.transactionHash
       job.attrs.data.status = 'SUCCEEDED'
       done(null, tx)
@@ -69,7 +72,7 @@ module.exports = (osseus, agenda) => {
     }
   })
 
-  const bonusToken = async ({ phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType, bonusId }) => {
+  const bonusToken = async ({ phoneNumber, identifier, accountAddress, tokenAddress, originNetwork, bonusType, bonusId }) => {
     try {
       const web3 = osseus.lib.web3.default
       const fundingAccountAddress = osseus.config.ethereum_admin_account
@@ -83,10 +86,10 @@ module.exports = (osseus, agenda) => {
         gasPrice: osseus.config.ethereum_gas_price,
         nonce: fundingAccountNonce
       })
-      await osseus.db_models.tokenBonus.finishBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
+      await osseus.db_models.tokenBonus.finishBonus({ phoneNumber, identifier, accountAddress, tokenAddress, bonusType, bonusId })
       return tx
     } catch (error) {
-      await osseus.db_models.tokenBonus.failBonus({ phoneNumber, accountAddress, tokenAddress, bonusType, bonusId })
+      await osseus.db_models.tokenBonus.failBonus({ phoneNumber, identifier, accountAddress, tokenAddress, bonusType, bonusId })
       throw error
     }
   }
@@ -95,9 +98,12 @@ module.exports = (osseus, agenda) => {
     if (!job || !job.attrs || !job.attrs.data) {
       return done(new Error(`Job data undefined`))
     }
-    let { phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType, bonusId } = job.attrs.data
+    let { phoneNumber, accountAddress, identifier, tokenAddress, originNetwork, bonusType, bonusId } = job.attrs.data
     if (!phoneNumber) {
       return done(new Error(`Job data is missing "phoneNumber"`))
+    }
+    if (!identifier) {
+      return done(new Error(`Job data is missing "identifier"`))
     }
     if (!accountAddress) {
       return done(new Error(`Job data is missing "accountAddress"`))
@@ -116,7 +122,7 @@ module.exports = (osseus, agenda) => {
     }
 
     try {
-      let tx = await bonusToken({ phoneNumber, accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
+      let tx = await bonusToken({ phoneNumber, identifier, accountAddress, tokenAddress, originNetwork, bonusType, bonusId })
       job.attrs.data.txHash = tx.transactionHash
       job.attrs.data.status = 'SUCCEEDED'
       done(null, tx)
