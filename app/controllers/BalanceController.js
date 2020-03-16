@@ -132,13 +132,17 @@ module.exports = (osseus) => {
         })
       }
 
-      if (identifier) {
-        const fundingsCountForIdentifier = await osseus.db_models.tokenFunding.fundingsCountForIdentifier({ identifier, tokenAddress })
-        if (fundingsCountForIdentifier >= tokenFundingMaxTimes) {
-          return res.status(403).send({
-            error: `Join bonus reached maximum times ${tokenFundingMaxTimes}. [identifier: ${identifier}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
-          })
-        }
+      if (!identifier) {
+        return res.status(403).send({
+          error: `No identifier defined. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
+        })
+      }
+
+      const fundingsCountForIdentifier = await osseus.db_models.tokenFunding.fundingsCountForIdentifier({ identifier, tokenAddress })
+      if (fundingsCountForIdentifier >= tokenFundingMaxTimes) {
+        return res.status(403).send({
+          error: `Join bonus reached maximum times ${tokenFundingMaxTimes}. [identifier: ${identifier}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
+        })
       }
 
       const fundingsCountDaily = await osseus.db_models.tokenFunding.fundingsPerDay(new Date())
@@ -191,13 +195,17 @@ module.exports = (osseus) => {
         })
       }
 
-      if (identifier) {
-        const bonusesCountForIdentifier = await osseus.db_models.tokenBonus.bonusesCountForIdentifier({ identifier, tokenAddress, bonusType })
-        if (bonusesCountForIdentifier >= tokenBonusMaxTimes) {
-          return res.status(403).send({
-            error: `Bonus reached maximum times ${tokenBonusMaxTimes}. [identifier: ${identifier}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
-          })
-        }
+      if (!identifier) {
+        return res.status(403).send({
+          error: `No identifier defined. [phoneNumber: ${phoneNumber}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}]`
+        })
+      }
+
+      const bonusesCountForIdentifier = await osseus.db_models.tokenBonus.bonusesCountForIdentifier({ identifier, tokenAddress, bonusType })
+      if (bonusesCountForIdentifier >= tokenBonusMaxTimes) {
+        return res.status(403).send({
+          error: `Bonus reached maximum times ${tokenBonusMaxTimes}. [identifier: ${identifier}, accountAddress: ${accountAddress}, tokenAddress: ${tokenAddress}, bonusType: ${bonusType}, bonusId: ${bonusId}]`
+        })
       }
 
       if (bonusType.includes('invite')) {
