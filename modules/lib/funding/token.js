@@ -10,7 +10,7 @@ module.exports = (osseus, agenda) => {
     const community = get(JSON.parse(response), 'data')
     const bonusAmount = get(community, `${bonusType}.amount`)
     const tokenDecimals = await getTokenDecimals({ tokenAddress, originNetwork })
-    const tokenBonusAmount = new BigNumber(bonusAmount).div(10 ** tokenDecimals)
+    const tokenBonusAmount = new BigNumber(bonusAmount).mul(10 ** tokenDecimals)
     return tokenBonusAmount
   }
 
