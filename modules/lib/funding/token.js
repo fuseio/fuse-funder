@@ -11,7 +11,7 @@ module.exports = (osseus, agenda) => {
     const bonusAmount = get(community, `${bonusType}.amount`)
     const tokenDecimals = await getTokenDecimals({ tokenAddress, originNetwork })
     const tokenBonusAmount = new BigNumber(bonusAmount).mul(10 ** tokenDecimals)
-    return tokenBonusAmount
+    return tokenBonusAmount.toString()
   }
 
   const getTokenDecimals = async ({ tokenAddress, originNetwork }) => {
