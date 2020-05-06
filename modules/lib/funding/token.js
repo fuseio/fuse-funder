@@ -1,13 +1,24 @@
 const request = require('request-promise-native')
 const { get } = require('lodash')
 const { getBaseUrl } = require('../utils')
+const BigNumber = require('bignumber.js')
 
 module.exports = (osseus, agenda) => {
-  const getTokenBonus = async ({ tokenAddress, originNetwork, bonusType }) => {
+  const getTokenBonusAmount = async ({ tokenAddress, originNetwork, bonusType }) => {
     const baseURL = getBaseUrl(osseus, originNetwork)
     const response = await request.get(`${baseURL}/communities?homeTokenAddress=${tokenAddress}`)
     const community = get(JSON.parse(response), 'data')
-    return get(community, `${bonusType}.amount`)
+    const bonusAmount = get(community, `${bonusType}.amount`)
+    const tokenDecimals = await getTokenDecimals({ tokenAddress, originNetwork })
+    const tokenBonusAmount = new BigNumber(bonusAmount).div(10 ** tokenDecimals)
+    return tokenBonusAmount
+  }
+
+  const getTokenDecimals = async ({ tokenAddress, originNetwork }) => {
+    const baseURL = getBaseUrl(osseus, originNetwork)
+    const response = await request.get(`${baseURL}/tokens/${tokenAddress}`)
+    const token = get(JSON.parse(response), 'data')
+    return get(token, 'decimals')
   }
 
   const getNonce = async (web3, address) => {
@@ -20,10 +31,9 @@ module.exports = (osseus, agenda) => {
       const web3 = osseus.lib.web3.default
       const fundingAccountAddress = osseus.config.ethereum_admin_account
       const fundingAccountNonce = await getNonce(web3, fundingAccountAddress)
-      const tokenBonus = await getTokenBonus({ tokenAddress, originNetwork, bonusType })
-      const tokenBonusAmountInWei = web3.utils.toWei(tokenBonus.toString())
+      const tokenBonusAmount = await getTokenBonusAmount({ tokenAddress, originNetwork, bonusType })
       const token = osseus.lib.token.create(tokenAddress)
-      let tx = await token.methods.transfer(accountAddress, tokenBonusAmountInWei).send({
+      let tx = await token.methods.transfer(accountAddress, tokenBonusAmount).send({
         from: fundingAccountAddress,
         gas: osseus.config.ethereum_gas_per_transaction,
         gasPrice: osseus.config.ethereum_gas_price,
@@ -74,10 +84,9 @@ module.exports = (osseus, agenda) => {
       const web3 = osseus.lib.web3.default
       const fundingAccountAddress = osseus.config.ethereum_admin_account
       const fundingAccountNonce = await getNonce(web3, fundingAccountAddress)
-      const tokenBonus = await getTokenBonus({ tokenAddress, originNetwork, bonusType })
-      const tokenBonusAmountInWei = web3.utils.toWei(tokenBonus.toString())
+      const tokenBonusAmount = await getTokenBonusAmount({ tokenAddress, originNetwork, bonusType })
       const token = osseus.lib.token.create(tokenAddress)
-      let tx = await token.methods.transfer(accountAddress, tokenBonusAmountInWei).send({
+      let tx = await token.methods.transfer(accountAddress, tokenBonusAmount).send({
         from: fundingAccountAddress,
         gas: osseus.config.ethereum_gas_per_transaction,
         gasPrice: osseus.config.ethereum_gas_price,
