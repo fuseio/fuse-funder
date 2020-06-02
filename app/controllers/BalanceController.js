@@ -98,6 +98,15 @@ module.exports = (osseus) => {
     return osseus.config.team_phone_numbers ? osseus.config.team_phone_numbers.split(',').includes(phoneNumber) : false
   }
 
+  const isBlocked = (phoneNumber) => {
+    if (!osseus.config.blockedPrefixes) {
+      return false
+    }
+    const blockedPrefixes = osseus.config.blockedPrefixes.split(',') || []
+    const isBlocked = blockedPrefixes.filter(bp => phoneNumber.startsWith(bp)).length > 0
+    return isBlocked
+  }
+
   /**
    * @api {post} /fund/token Fund account with token
    * @apiParam {String} phoneNumbber Phone number of bonus receiver
@@ -124,6 +133,10 @@ module.exports = (osseus) => {
     }
 
     if (!isTeam(phoneNumber)) {
+      if (isBlocked(phoneNumber)) {
+        return res.status(403).json({ error: `${phoneNumber} is blocked` })
+      }
+
       const tokenFundingMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
       const fundingsCountForPhoneNumber = await osseus.db_models.tokenFunding.fundingsCountForPhoneNumber({ phoneNumber, tokenAddress })
       if (fundingsCountForPhoneNumber >= tokenFundingMaxTimes) {
@@ -187,6 +200,10 @@ module.exports = (osseus) => {
     }
 
     if (!isTeam(phoneNumber)) {
+      if (isBlocked(phoneNumber)) {
+        return res.status(403).json({ error: `${phoneNumber} is blocked` })
+      }
+
       const tokenBonusMaxTimes = get(community, `${bonusType}.maxTimes`) || 1
       const bonusesCountForPhoneNumber = await osseus.db_models.tokenBonus.bonusesCountForPhoneNumber({ phoneNumber, tokenAddress, bonusType })
       if (bonusesCountForPhoneNumber >= tokenBonusMaxTimes) {
