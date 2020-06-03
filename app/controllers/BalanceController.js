@@ -99,10 +99,10 @@ module.exports = (osseus) => {
   }
 
   const isBlocked = (phoneNumber) => {
-    if (!osseus.config.blockedPrefixes) {
+    if (!osseus.config.blocked_phone_prefixes) {
       return false
     }
-    const blockedPrefixes = osseus.config.blockedPrefixes.split(',') || []
+    const blockedPrefixes = osseus.config.blocked_phone_prefixes.split(',') || []
     const isBlocked = blockedPrefixes.filter(bp => phoneNumber.startsWith(bp)).length > 0
     return isBlocked
   }

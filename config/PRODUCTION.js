@@ -29,5 +29,5 @@ module.exports = {
   ETHEREUM_GAS_PRICE: '1e9',
   FUSE_STUDIO_API_BASE: 'https://studio.fuse.io/api/v1',
   FUNDING_CONCURRENCY: 5,
-  BLOCKED_PREFIXES: ''
+  BLOCKED_PHONE_PREFIXES: ''
 }
