@@ -29,6 +29,7 @@ module.exports = {
   ETHEREUM_FUNDINGS_CAP_PER_DAY: 10,
   ETHEREUM_GAS_PER_TRANSACTION: 100000,
   FUSE_STUDIO_API_BASE: 'http://localhost:3000/api/v1',
+  EXPLORER_BASE_API: 'https://explorer.fuse.io/api',
   FUNDING_CONCURRENCY: 5,
   BLOCKED_PHONE_PREFIXES: ''
 }

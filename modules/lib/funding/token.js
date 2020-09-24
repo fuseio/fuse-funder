@@ -1,27 +1,19 @@
 const request = require('request-promise-native')
 const { get } = require('lodash')
-const { getBaseUrl } = require('../utils')
 const BigNumber = require('bignumber.js')
 
 module.exports = (osseus, agenda) => {
-  const getTokenBonusAmount = async ({ tokenAddress, originNetwork, tokenFunding }) => {
-    // const baseURL = getBaseUrl(osseus, originNetwork)
-    // const response = await request.get(`${baseURL}/communities?homeTokenAddress=${tokenAddress}`)
-    // const community = get(JSON.parse(response), 'data')
-    // const bonusAmount = get(community, `${bonusType}.amount`)
-    // const tokenDecimals = await getTokenDecimals({ tokenAddress, originNetwork })
-
-    // default for all tokens unless they're imported
-    const tokenDecimals = 18
+  const getTokenBonusAmount = async ({ tokenAddress, tokenFunding }) => {
+    const tokenDecimals = await getTokenDecimals({ tokenAddress })
     const tokenBonusAmount = new BigNumber(tokenFunding).mul(10 ** tokenDecimals)
     return tokenBonusAmount.toString()
   }
 
-  const getTokenDecimals = async ({ tokenAddress, originNetwork }) => {
-    const baseURL = getBaseUrl(osseus, originNetwork)
-    const response = await request.get(`${baseURL}/tokens/${tokenAddress}`)
-    const token = get(JSON.parse(response), 'data')
-    return get(token, 'decimals')
+  const getTokenDecimals = async ({ tokenAddress }) => {
+    const explorerBaseApi = osseus.config.explorer_base_api
+    const response = await request.get(`${explorerBaseApi}/?module=token&action=getToken&contractaddress=${tokenAddress}`)
+    const tokenDecimals = get(JSON.parse(response), 'result.decimals')
+    return tokenDecimals
   }
 
   const getNonce = async (web3, address) => {
