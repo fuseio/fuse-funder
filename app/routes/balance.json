@@ -16,6 +16,10 @@
             "notEmpty": true,
             "errorMessage": "is missing"
           },
+          "communityAddress": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
+          },
           "originNetwork": {
             "notEmpty": true,
             "errorMessage": "is missing"
@@ -76,6 +80,10 @@
             "errorMessage": "is missing"
           },
           "tokenAddress": {
+            "notEmpty": true,
+            "errorMessage": "is missing"
+          },
+          "communityAddress": {
             "notEmpty": true,
             "errorMessage": "is missing"
           },
